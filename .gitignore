@@ -1,0 +1,10 @@
+# OS / Editor
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# OneDrive
+*.tmp
+~$*

@@ -1,0 +1,133 @@
+:root {
+  --bg: #0d1117;
+  --bg-glow: #16324f;
+  --card: #151b23;
+  --border: #232c38;
+  --text: #e6edf3;
+  --muted: #8b97a6;
+  --accent: #f5c518;
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(900px 500px at 50% -10%, var(--bg-glow), transparent 70%),
+    var(--bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px 32px 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+}
+
+/* Kopf */
+.card__head { text-align: center; }
+
+.mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #0d1117;
+  background: var(--accent);
+}
+.mark svg { width: 30px; height: 30px; }
+
+h1 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+h1 span { color: var(--muted); font-weight: 400; }
+
+.tagline {
+  margin-top: 10px;
+  font-size: .95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Leistungen */
+.services { margin: 28px 0; }
+
+.services ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  list-style: none;
+}
+
+.services li {
+  font-size: .8rem;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+/* Kontakt */
+.contact {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.contact__row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background .15s ease;
+}
+.contact__row:hover { background: rgba(255, 255, 255, .04); }
+.contact__row--static:hover { background: none; }
+
+.contact__label {
+  flex: 0 0 74px;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+.contact__value {
+  font-size: .95rem;
+  line-height: 1.45;
+}
+a.contact__row:hover .contact__value { color: var(--accent); }
+
+/* Fuß */
+.card__foot {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.card__foot .note { margin-top: 4px; opacity: .7; }
+
+@media (max-width: 420px) {
+  .card { padding: 32px 22px 24px; }
+  h1 { font-size: 1.6rem; }
+  .contact__label { flex-basis: 62px; }
+}

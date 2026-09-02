@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>elektromas GmbH – Elektrotechnik</title>
+  <meta name="description" content="elektromas GmbH – Ihr Partner für Elektrotechnik, Installation und Energietechnik.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="card">
+
+    <header class="card__head">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>
+        </svg>
+      </div>
+      <h1>elektromas <span>GmbH</span></h1>
+      <p class="tagline">Elektrotechnik mit System – Planung, Installation, Service.</p>
+    </header>
+
+    <section class="services" aria-label="Leistungen">
+      <ul>
+        <li>Elektroinstallation</li>
+        <li>Schaltanlagenbau</li>
+        <li>Photovoltaik &amp; Speicher</li>
+        <li>Ladeinfrastruktur</li>
+        <li>Gebäudeautomation</li>
+        <li>Wartung &amp; Prüfung</li>
+      </ul>
+    </section>
+
+    <!-- TODO: Kontaktdaten durch die echten Firmendaten ersetzen -->
+    <section class="contact" aria-label="Kontakt">
+      <a class="contact__row" href="tel:+490000000000">
+        <span class="contact__label">Telefon</span>
+        <span class="contact__value">+49 (0) 000 000 00 00</span>
+      </a>
+      <a class="contact__row" href="mailto:info@elektromas.cool">
+        <span class="contact__label">E-Mail</span>
+        <span class="contact__value">info@elektromas.cool</span>
+      </a>
+      <a class="contact__row" href="https://elektromas.cool">
+        <span class="contact__label">Web</span>
+        <span class="contact__value">elektromas.cool</span>
+      </a>
+      <div class="contact__row contact__row--static">
+        <span class="contact__label">Adresse</span>
+        <span class="contact__value">Musterstraße 1<br>00000 Musterstadt</span>
+      </div>
+    </section>
+
+    <footer class="card__foot">
+      <p>&copy; <span id="year">2026</span> elektromas GmbH</p>
+      <p class="note">Testseite – Impressum und Datenschutzerklärung folgen.</p>
+    </footer>
+
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
