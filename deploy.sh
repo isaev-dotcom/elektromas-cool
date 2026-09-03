@@ -2,8 +2,9 @@
 #
 # Deployment der statischen Seite auf den Webspace.
 #
+#   ./deploy.sh --test       nur den Zugang prüfen, nichts übertragen
 #   ./deploy.sh              hochladen
-#   ./deploy.sh --dry-run    nur anzeigen, was passieren würde
+#   ./deploy.sh --dry-run    nur anzeigen, was hochgeladen würde
 #   ./deploy.sh --delete     zusätzlich Dateien auf dem Server löschen,
 #                            die es lokal nicht mehr gibt (nur mit lftp)
 #
@@ -20,11 +21,13 @@ cd "$(dirname "$0")"
 
 DRY_RUN=0
 DO_DELETE=0
+NUR_TEST=0
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     --delete)  DO_DELETE=1 ;;
-    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --test)    NUR_TEST=1 ;;
+    -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unbekannte Option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -70,6 +73,57 @@ if [ "$PROTOCOL" = "sftp" ]; then
 elif [ -z "$DEPLOY_PASS" ]; then
   echo "FEHLER: Für $PROTOCOL wird DEPLOY_PASS gebraucht." >&2
   exit 1
+fi
+
+# --- Verbindungstest --------------------------------------------------------
+#
+# Prüft Anmeldung und Zielverzeichnis, ohne irgendetwas zu übertragen.
+
+if [ $NUR_TEST -eq 1 ]; then
+  echo "Teste Zugang: $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PORT ($PROTOCOL)"
+  echo "Zielverzeichnis: $REMOTE_DIR"
+  echo
+
+  if [ "$PROTOCOL" = "sftp" ]; then
+    if [ -z "$SSH_KEY" ] || [ ! -f "$SSH_KEY" ]; then
+      echo "FEHLER: SSH_KEY fehlt oder ist nicht lesbar: ${SSH_KEY:-<leer>}" >&2
+      exit 1
+    fi
+    printf 'cd %s\nls\nbye\n' "$REMOTE_DIR" > "$(dirname "$0")/.sftp-test"
+    if sftp -o StrictHostKeyChecking=accept-new -o BatchMode=yes \
+            -i "$SSH_KEY" -P "$DEPLOY_PORT" -b "$(dirname "$0")/.sftp-test" \
+            "$DEPLOY_USER@$DEPLOY_HOST"; then
+      rm -f "$(dirname "$0")/.sftp-test"
+      echo; echo "Zugang funktioniert."
+      exit 0
+    else
+      rm -f "$(dirname "$0")/.sftp-test"
+      echo; echo "Zugang fehlgeschlagen - siehe Meldung oben." >&2
+      exit 1
+    fi
+  fi
+
+  CURL_SSL=()
+  [ "$PROTOCOL" = "ftps" ] && CURL_SSL=(--ssl-reqd)
+
+  echo "--- Inhalt von $REMOTE_DIR auf dem Server ---"
+  if printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
+     | curl -sS --fail --connect-timeout 20 "${CURL_SSL[@]}" \
+            -K - --list-only "ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_DIR/"; then
+    echo "---"
+    echo
+    echo "Zugang funktioniert. Hochladen mit:  ./deploy.sh"
+    exit 0
+  else
+    echo
+    echo "Zugang fehlgeschlagen." >&2
+    echo "Häufige Ursachen:" >&2
+    echo "  - Benutzername oder Passwort falsch" >&2
+    echo "  - REMOTE_DIR existiert nicht (bestätigt ist /httpdocs)" >&2
+    echo "  - Hoster kann kein FTPS: dann PROTOCOL=ftp probieren" >&2
+    echo "  - falscher Hostname in DEPLOY_HOST" >&2
+    exit 1
+  fi
 fi
 
 # --- Was wird hochgeladen? --------------------------------------------------
