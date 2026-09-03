@@ -147,6 +147,9 @@ AUSSCHLUSS=(
   # Platzhalter statt eines echten AuthUserFile-Pfads. Apache würde sie lesen
   # und für dieses Verzeichnis mit einem 500er antworten.
   "schulung/login-vorlage"
+  # Schulungsbereich vorerst zurückgehalten - er hat noch keinen Passwortschutz
+  # und wäre sonst öffentlich abrufbar. Zum Freigeben diese Zeile entfernen.
+  "schulung"
 )
 
 # Vergleicht sowohl den vollen Pfad ("schulung/login-vorlage") als auch den
