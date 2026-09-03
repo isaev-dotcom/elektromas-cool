@@ -9,10 +9,6 @@ desktop.ini
 *.tmp
 ~$*
 
-# Passwortdateien niemals ins Repository
+# Passwortdateien niemals ins Repository – nur per FTP auf den Server
 .htpasswd
 **/.htpasswd
-
-# Passwortdatei des Schulungsbereichs – gehört NICHT ins Repository,
-# sondern wird einmalig per FTP nach /schulung/intern/ hochgeladen
-.htpasswd

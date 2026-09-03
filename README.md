@@ -4,31 +4,45 @@ Statische Visitenkarten-Webseite der elektromas GmbH.
 
 ## Struktur
 
-- `index.html` – die komplette Seite
-- `style.css` – Styling
+- `index.html` – die Visitenkarte
+- `impressum.html` – Impressum
+- `datenschutz.html` – Datenschutzerklärung
+- `style.css` – Styling aller Seiten
 - `assets/` – Logo und Favicons (Quelle: elektromas.de)
-- `schulung/` – Schulungsbereich, siehe [schulung/ANLEITUNG.md](schulung/ANLEITUNG.md)
-- `.htaccess` – Grundeinstellungen und Weiterleitung `/Schulung` → `/schulung/`
+
+Die Seiten laden ausschließlich lokale Dateien: keine Cookies, kein Tracking,
+keine externen Schriften oder Skripte. Das ist bewusst so und die Grundlage
+dafür, dass die Datenschutzerklärung so knapp ausfallen kann. Wer später
+Analytics, Google Fonts oder ein Kontaktformular einbaut, muss sie anpassen.
 
 ## Deployment
 
-Der Webspace bei Alphahosting zieht die Dateien aus diesem GitHub-Repository.
-Nach einem Push auf `main` wird der Stand veröffentlicht.
+Beim Hoster Alfahosting (Plesk, Panel unter `host298.alfahosting-server.de:8443`).
 
-Alternativ lassen sich die drei Dateien auch per FTP direkt in das
-Document-Root (z. B. `/html` oder `/httpdocs`) hochladen.
+**Stand: das Git-Deployment ist noch nicht eingerichtet.** Ein Push auf `main`
+landet also nicht automatisch auf dem Webspace. Aktuell werden die Dateien von
+Hand ins Document-Root (`httpdocs`) hochgeladen – dabei den Ordner `assets/`
+nicht vergessen, sonst fehlt das Logo.
+
+Zum Nachrüsten der Git-Anbindung: Plesk → Websites & Domains → elektromas.cool
+→ Git. Voraussetzungen und Stolpersteine:
+
+- Git gibt es bei Alfahosting nur im Tarif Business XL.
+- Das Repository ist **privat**. Plesk kommt per HTTPS-URL nicht daran; es
+  braucht die SSH-URL `git@github.com:isaev-dotcom/elektromas-cool.git` und den
+  von Plesk erzeugten Schlüssel als Deploy Key auf GitHub.
+- Zielverzeichnis auf `/httpdocs` setzen, nicht auf den vorgeschlagenen
+  Unterordner.
+- Branch: `main`.
 
 ## Offene Punkte
 
-- Impressum und Datenschutzerklärung als Unterseiten ergänzen (in Deutschland Pflicht)
-
-## Schulungsbereich
-
-`/schulung/` listet alle Schulungen. Neue Schulung veröffentlichen = Datei nach
-`schulung/inhalte/` legen und einen Eintrag in `schulung/schulungen.json`
-ergänzen.
-
-Aktuell **ohne Login**, aber per `noindex` von Suchmaschinen ausgenommen. Der
-Passwortschutz (Benutzername = E-Mail-Adresse) lässt sich mit den Bausteinen in
-`schulung/login-vorlage/` nachrüsten – Details in
-[schulung/ANLEITUNG.md](schulung/ANLEITUNG.md).
+- Impressum und Datenschutzerklärung fachlich prüfen lassen. Insbesondere:
+  Ist `DE 304877773` die USt-IdNr. (davon geht das Impressum aus) oder die
+  Steuernummer? Und gibt es einen Datenschutzbeauftragten, der genannt werden
+  muss?
+- Auf elektromas.de verweist das Impressum noch auf TMG und RStV. Beide sind
+  abgelöst (DDG bzw. MStV) – dort ebenfalls korrigieren.
+- Der Schulungsbereich (`schulung/`) liegt lokal vor, gehört aber bewusst noch
+  nicht ins Repository. Das CSS dafür (`.card__link`) steht bereits in
+  `style.css`, der Link in `index.html` ist vorerst entfernt.
