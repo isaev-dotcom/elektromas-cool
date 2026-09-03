@@ -147,3 +147,127 @@ body {
   .logo { width: 185px; }
   .contact__label { flex-basis: 62px; }
 }
+
+/* Verweis auf den Schulungsbereich */
+.card__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 11px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f6f9fd;
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--blau);
+  text-decoration: none;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.card__link:hover,
+.card__link:focus-visible { background: #eaf1fb; border-color: #c3d4ec; color: var(--orange); }
+.card__link svg { width: 16px; height: 16px; }
+
+/* ---------------------------------------------------------------
+   Rechtsseiten (Impressum, Datenschutz)
+   --------------------------------------------------------------- */
+
+body.page {
+  align-items: flex-start;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.card--wide {
+  max-width: 720px;
+  padding: 36px 40px 26px;
+}
+
+.legal__head {
+  text-align: center;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-link { display: inline-block; }
+.logo--small { width: 168px; }
+
+.legal__head h1 {
+  margin-top: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--blau);
+  letter-spacing: -.01em;
+}
+
+.legal {
+  padding-top: 4px;
+  font-size: .92rem;
+  line-height: 1.65;
+}
+
+.legal .lead {
+  margin: 22px 0 4px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--orange);
+  background: #fdf6e9;
+  border-radius: 0 8px 8px 0;
+  color: #5c4a2a;
+}
+
+.legal h2 {
+  margin: 26px 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--blau);
+}
+
+.legal h3 {
+  margin: 20px 0 6px;
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--blau-hell);
+}
+
+.legal p { margin-bottom: 10px; }
+
+.legal ul {
+  margin: 0 0 12px 20px;
+  padding: 0;
+}
+.legal li { margin-bottom: 4px; }
+
+.legal a {
+  color: var(--blau);
+  text-decoration-color: rgba(0, 61, 144, .35);
+  text-underline-offset: 2px;
+}
+.legal a:hover { color: var(--orange); }
+
+.legal .stand {
+  margin-top: 22px;
+  font-size: .82rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.legal__nav {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.legal__nav a {
+  color: var(--blau);
+  font-weight: 600;
+  text-decoration: none;
+}
+.legal__nav a:hover { color: var(--orange); text-decoration: underline; }
+
+@media (max-width: 560px) {
+  body.page { padding: 16px; }
+  .card--wide { padding: 28px 20px 20px; }
+  .logo--small { width: 145px; }
+  .legal__head h1 { font-size: 1.3rem; }
+}

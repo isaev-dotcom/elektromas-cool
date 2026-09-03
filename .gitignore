@@ -12,3 +12,7 @@ desktop.ini
 # Passwortdateien niemals ins Repository
 .htpasswd
 **/.htpasswd
+
+# Passwortdatei des Schulungsbereichs – gehört NICHT ins Repository,
+# sondern wird einmalig per FTP nach /schulung/intern/ hochgeladen
+.htpasswd
