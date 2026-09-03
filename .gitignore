@@ -12,3 +12,6 @@ desktop.ini
 # Passwortdateien niemals ins Repository – nur per FTP auf den Server
 .htpasswd
 **/.htpasswd
+
+# Zugangsdaten - niemals ins Repository
+.env

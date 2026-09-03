@@ -17,23 +17,35 @@ Analytics, Google Fonts oder ein Kontaktformular einbaut, muss sie anpassen.
 
 ## Deployment
 
-Beim Hoster Alfahosting (Plesk, Panel unter `host298.alfahosting-server.de:8443`).
+Hoster ist Alfahosting, Zielverzeichnis `/httpdocs`.
 
-**Stand: das Git-Deployment ist noch nicht eingerichtet.** Ein Push auf `main`
-landet also nicht automatisch auf dem Webspace. Aktuell werden die Dateien von
-Hand ins Document-Root (`httpdocs`) hochgeladen – dabei den Ordner `assets/`
-nicht vergessen, sonst fehlt das Logo.
+Hochgeladen wird per **SFTP mit `./deploy.sh`**. Einmalige Einrichtung:
 
-Zum Nachrüsten der Git-Anbindung: Plesk → Websites & Domains → elektromas.cool
-→ Git. Voraussetzungen und Stolpersteine:
+```bash
+cp .env.example .env    # danach die Werte in .env eintragen
+./deploy.sh --dry-run   # Testlauf, überträgt nichts
+./deploy.sh             # hochladen
+```
 
-- Git gibt es bei Alfahosting nur im Tarif Business XL.
-- Das Repository ist **privat**. Plesk kommt per HTTPS-URL nicht daran; es
-  braucht die SSH-URL `git@github.com:isaev-dotcom/elektromas-cool.git` und den
-  von Plesk erzeugten Schlüssel als Deploy Key auf GitHub.
-- Zielverzeichnis auf `/httpdocs` setzen, nicht auf den vorgeschlagenen
-  Unterordner.
-- Branch: `main`.
+Die Zugangsdaten stehen ausschließlich in der `.env`, die per `.gitignore`
+ausgeschlossen ist. Das Skript weigert sich, die `.env` mit hochzuladen.
+
+Zum Werkzeug: `lftp` ist unter Git Bash nicht verfügbar und mangels
+Paketmanager auch nicht nachinstallierbar. Das Skript nutzt es, falls es
+vorhanden ist (dann lädt es nur Geändertes und kann per `--delete` aufräumen),
+fällt sonst aber auf den mitgelieferten OpenSSH-Client zurück. Dieser Weg
+braucht einen SSH-Schlüssel, weil er kein Passwort aus einer Datei lesen kann.
+
+### Git-Deployment: nicht in Betrieb
+
+Der Versuch über die Git-Integration von Alfahosting wurde aufgegeben. Zum
+Stand der Dinge, falls jemand es erneut versucht:
+
+- Eine ältere Anbindung rollte nach `/httpdocs/git` aus – dort liegt noch der
+  erste Commit. Der Ordner kann weg.
+- Eine zweite Anbindung auf `/httpdocs` hat das Verzeichnis geleert, aber
+  nicht befüllt. Zwei Repositories mit ineinanderliegenden Zielpfaden auf
+  derselben Domain vertragen sich offenbar nicht.
 
 ## Offene Punkte
 
