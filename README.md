@@ -19,7 +19,7 @@ Analytics, Google Fonts oder ein Kontaktformular einbaut, muss sie anpassen.
 
 Hoster ist Alfahosting, Zielverzeichnis `/httpdocs`.
 
-Hochgeladen wird per **SFTP mit `./deploy.sh`**. Einmalige Einrichtung:
+Hochgeladen wird per **FTPS mit `./deploy.sh`**. Einmalige Einrichtung:
 
 ```bash
 cp .env.example .env    # danach die Werte in .env eintragen
@@ -28,13 +28,26 @@ cp .env.example .env    # danach die Werte in .env eintragen
 ```
 
 Die Zugangsdaten stehen ausschließlich in der `.env`, die per `.gitignore`
-ausgeschlossen ist. Das Skript weigert sich, die `.env` mit hochzuladen.
+ausgeschlossen ist. Das Skript bricht ab, falls die `.env` je in der
+Upload-Liste landen sollte.
 
-Zum Werkzeug: `lftp` ist unter Git Bash nicht verfügbar und mangels
-Paketmanager auch nicht nachinstallierbar. Das Skript nutzt es, falls es
-vorhanden ist (dann lädt es nur Geändertes und kann per `--delete` aufräumen),
-fällt sonst aber auf den mitgelieferten OpenSSH-Client zurück. Dieser Weg
-braucht einen SSH-Schlüssel, weil er kein Passwort aus einer Datei lesen kann.
+`PROTOCOL` in der `.env` steuert den Weg:
+
+- `ftps` (Standard) – FTP über TLS auf Port 21, per `curl`. Braucht kein
+  Zusatzwerkzeug und kommt mit Passwort aus.
+- `ftp` – dasselbe unverschlüsselt. Nur, wenn der Hoster kein TLS kann.
+- `sftp` – über SSH auf Port 22. Braucht einen SSH-Schlüssel, weil der
+  mitgelieferte OpenSSH-Client kein Passwort aus einer Datei lesen kann.
+
+Ist `lftp` vorhanden, nutzt das Skript es bevorzugt: dann werden nur geänderte
+Dateien übertragen und `--delete` räumt Verwaistes auf dem Server auf. Unter
+Git Bash ist `lftp` nicht verfügbar und mangels Paketmanager auch nicht
+nachrüstbar – dort läuft der `curl`-Weg, der jedes Mal alles überträgt. Bei
+der aktuellen Größe von rund 60 KB fällt das nicht ins Gewicht.
+
+Nicht hochgeladen wird `schulung/login-vorlage/`: Die dortige `.htaccess`
+enthält einen Platzhalter statt eines echten `AuthUserFile`-Pfads, Apache
+würde das Verzeichnis mit einem 500er quittieren.
 
 ### Git-Deployment: nicht in Betrieb
 

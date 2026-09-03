@@ -11,6 +11,11 @@
 
 set -euo pipefail
 
+# dotglob: versteckte Dateien wie .htaccess werden mit erfasst.
+# nullglob: ein Muster ohne Treffer verschwindet, statt literal stehenzubleiben
+#           - sonst bricht ein Ordner ohne sichtbare Dateien das Skript ab.
+shopt -s dotglob nullglob
+
 cd "$(dirname "$0")"
 
 DRY_RUN=0
@@ -32,17 +37,22 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
-# Nur KEY=VALUE-Zeilen übernehmen, Kommentare und Leerzeilen ignorieren.
 set -a
 # shellcheck disable=SC1091
 . ./.env
 set +a
 
-: "${PROTOCOL:=sftp}"
-: "${DEPLOY_PORT:=22}"
+: "${PROTOCOL:=ftps}"
 : "${REMOTE_DIR:=/httpdocs}"
 : "${SSH_KEY:=}"
 : "${DEPLOY_PASS:=}"
+
+case "$PROTOCOL" in
+  ftps|ftp) : "${DEPLOY_PORT:=21}" ;;
+  sftp)     : "${DEPLOY_PORT:=22}" ;;
+  *) echo "FEHLER: PROTOCOL muss ftps, ftp oder sftp sein (ist: $PROTOCOL)" >&2
+     exit 1 ;;
+esac
 
 fehlt=""
 [ -z "${DEPLOY_HOST:-}" ] && fehlt="$fehlt DEPLOY_HOST"
@@ -52,8 +62,13 @@ if [ -n "$fehlt" ]; then
   exit 1
 fi
 
-if [ -z "$SSH_KEY" ] && [ -z "$DEPLOY_PASS" ]; then
-  echo "FEHLER: Weder SSH_KEY noch DEPLOY_PASS gesetzt." >&2
+if [ "$PROTOCOL" = "sftp" ]; then
+  if [ -z "$SSH_KEY" ] && [ -z "$DEPLOY_PASS" ]; then
+    echo "FEHLER: Für sftp wird SSH_KEY oder DEPLOY_PASS gebraucht." >&2
+    exit 1
+  fi
+elif [ -z "$DEPLOY_PASS" ]; then
+  echo "FEHLER: Für $PROTOCOL wird DEPLOY_PASS gebraucht." >&2
   exit 1
 fi
 
@@ -74,11 +89,20 @@ AUSSCHLUSS=(
   ".DS_Store"
   ".vscode"
   ".idea"
+  # Vorlagenordner, gehört nicht auf den Server: seine .htaccess enthält einen
+  # Platzhalter statt eines echten AuthUserFile-Pfads. Apache würde sie lesen
+  # und für dieses Verzeichnis mit einem 500er antworten.
+  "schulung/login-vorlage"
 )
 
+# Vergleicht sowohl den vollen Pfad ("schulung/login-vorlage") als auch den
+# reinen Dateinamen ("Thumbs.db"), damit beide Schreibweisen in AUSSCHLUSS
+# funktionieren.
 ist_ausgeschlossen() {
-  local name="$1"
+  local pfad="$1"
+  local name="${pfad##*/}"
   for a in "${AUSSCHLUSS[@]}"; do
+    [ "$pfad" = "$a" ] && return 0
     [ "$name" = "$a" ] && return 0
   done
   case "$name" in
@@ -88,8 +112,7 @@ ist_ausgeschlossen() {
 }
 
 HOCHLADEN=()
-for eintrag in * .[!.]*; do
-  [ -e "$eintrag" ] || continue
+for eintrag in *; do
   ist_ausgeschlossen "$eintrag" && continue
   HOCHLADEN+=("$eintrag")
 done
@@ -99,12 +122,7 @@ if [ ${#HOCHLADEN[@]} -eq 0 ]; then
   exit 1
 fi
 
-echo "Ziel:      $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_DIR  (Port $DEPLOY_PORT, $PROTOCOL)"
-echo "Dateien:   ${HOCHLADEN[*]}"
-[ $DRY_RUN -eq 1 ] && echo "Modus:     Testlauf, es wird nichts übertragen"
-echo
-
-# Sicherheitsnetz: .env darf niemals in der Liste stehen.
+# Sicherheitsnetz: die .env darf niemals in der Liste stehen.
 for f in "${HOCHLADEN[@]}"; do
   if [ "$f" = ".env" ]; then
     echo "ABBRUCH: .env wäre hochgeladen worden." >&2
@@ -112,17 +130,22 @@ for f in "${HOCHLADEN[@]}"; do
   fi
 done
 
+echo "Ziel:      $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_DIR  (Port $DEPLOY_PORT, $PROTOCOL)"
+echo "Dateien:   ${HOCHLADEN[*]}"
+[ "$PROTOCOL" = "ftp" ] && echo "ACHTUNG:   unverschlüsselt - besser PROTOCOL=ftps"
+[ $DRY_RUN -eq 1 ] && echo "Modus:     Testlauf, es wird nichts übertragen"
+echo
+
 # --- Übertragung ------------------------------------------------------------
 
 if command -v lftp >/dev/null 2>&1; then
   # ---- Weg 1: lftp. Spiegelt und überträgt nur Geändertes. ----
   echo "Verwende lftp."
 
-  if [ "$PROTOCOL" = "sftp" ]; then
-    URL="sftp://$DEPLOY_USER:$DEPLOY_PASS@$DEPLOY_HOST:$DEPLOY_PORT"
-  else
-    URL="ftp://$DEPLOY_USER:$DEPLOY_PASS@$DEPLOY_HOST:$DEPLOY_PORT"
-  fi
+  case "$PROTOCOL" in
+    sftp) SCHEMA="sftp" ;;
+    *)    SCHEMA="ftp"  ;;   # ftps = ftp + TLS, siehe ssl-force unten
+  esac
 
   SPIEGEL="mirror --reverse --only-newer --verbose"
   [ $DO_DELETE -eq 1 ] && SPIEGEL="$SPIEGEL --delete"
@@ -131,8 +154,14 @@ if command -v lftp >/dev/null 2>&1; then
     SPIEGEL="$SPIEGEL --exclude-glob $a"
   done
 
-  lftp -c "set ftp:ssl-force true; set ssl:verify-certificate no; \
-           open $URL; $SPIEGEL . $REMOTE_DIR; bye"
+  TLS="false"
+  [ "$PROTOCOL" = "ftps" ] && TLS="true"
+
+  # Passwort über "open -u", nicht in der URL - sonst brechen Sonderzeichen.
+  lftp -c "set ftp:ssl-force $TLS; set ftp:ssl-protect-data true; \
+           set ssl:verify-certificate no; \
+           open -u '$DEPLOY_USER','$DEPLOY_PASS' -p $DEPLOY_PORT $SCHEMA://$DEPLOY_HOST; \
+           $SPIEGEL . $REMOTE_DIR; bye"
 
 elif [ "$PROTOCOL" = "sftp" ]; then
   # ---- Weg 2: OpenSSH-sftp. Braucht einen SSH-Schlüssel. ----
@@ -141,6 +170,7 @@ elif [ "$PROTOCOL" = "sftp" ]; then
   if [ -z "$SSH_KEY" ]; then
     echo "FEHLER: Ohne lftp braucht sftp einen SSH_KEY - ein Passwort kann" >&2
     echo "        der OpenSSH-Client nicht aus der .env lesen." >&2
+    echo "        Alternative: PROTOCOL=ftps in der .env." >&2
     exit 1
   fi
   if [ ! -f "$SSH_KEY" ]; then
@@ -174,31 +204,56 @@ elif [ "$PROTOCOL" = "sftp" ]; then
        "$DEPLOY_USER@$DEPLOY_HOST"
 
 else
-  # ---- Weg 3: einfaches FTP über curl. ----
-  echo "Verwende curl (FTP)."
+  # ---- Weg 3: FTP/FTPS über curl. Kein Zusatzwerkzeug nötig. ----
+  echo "Verwende curl ($PROTOCOL)."
 
-  if [ -z "$DEPLOY_PASS" ]; then
-    echo "FEHLER: Für FTP über curl wird DEPLOY_PASS benötigt." >&2
-    exit 1
-  fi
+  CURL_SSL=()
+  [ "$PROTOCOL" = "ftps" ] && CURL_SSL=(--ssl-reqd)
 
-  hochladen_rekursiv() {
+  ANZAHL=0
+  FEHLER=0
+
+  # Das Passwort wird über eine Konfiguration auf der Standardeingabe
+  # übergeben, damit es nicht in der Prozessliste auftaucht.
+  hochladen_datei() {
     local pfad="$1"
-    if [ -d "$pfad" ]; then
-      for k in "$pfad"/*; do [ -e "$k" ] && hochladen_rekursiv "$k"; done
+    local ziel="ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_DIR/$pfad"
+
+    if [ $DRY_RUN -eq 1 ]; then
+      echo "  würde hochladen: $pfad"
+      return 0
+    fi
+
+    if printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
+       | curl -sS --fail --ftp-create-dirs "${CURL_SSL[@]}" \
+              -K - -T "$pfad" "$ziel"; then
+      echo "  ok      $pfad"
+      ANZAHL=$((ANZAHL + 1))
     else
-      local ziel="ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_DIR/$pfad"
-      if [ $DRY_RUN -eq 1 ]; then
-        echo "  würde hochladen: $pfad"
-      else
-        echo "  $pfad"
-        curl -sS --ftp-create-dirs -u "$DEPLOY_USER:$DEPLOY_PASS" \
-             -T "$pfad" "$ziel"
-      fi
+      echo "  FEHLER  $pfad" >&2
+      FEHLER=$((FEHLER + 1))
     fi
   }
 
+  hochladen_rekursiv() {
+    local pfad="$1"
+    ist_ausgeschlossen "$pfad" && return 0
+    if [ -d "$pfad" ]; then
+      local k
+      for k in "$pfad"/*; do hochladen_rekursiv "$k"; done
+    else
+      hochladen_datei "$pfad"
+    fi
+    return 0
+  }
+
   for f in "${HOCHLADEN[@]}"; do hochladen_rekursiv "$f"; done
+
+  if [ $DRY_RUN -eq 0 ]; then
+    echo
+    echo "$ANZAHL Datei(en) übertragen, $FEHLER Fehler."
+    [ $FEHLER -gt 0 ] && exit 1
+  fi
 fi
 
 echo
