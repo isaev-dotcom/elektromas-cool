@@ -1,11 +1,11 @@
 [
   {
-    "titel": "Beispiel: Elektrische Sicherheit am Arbeitsplatz",
-    "beschreibung": "Platzhalter-Eintrag zum Ausprobieren. Diesen Eintrag löschen, sobald die erste echte Schulung online geht.",
-    "kategorie": "Arbeitssicherheit",
-    "typ": "HTML",
-    "datum": "2026-09-03",
-    "dauer": "10 Min.",
-    "link": "inhalte/beispiel-schulung.html"
+    "titel": "KI-Verordnung 2025 – Sicher arbeiten mit KI",
+    "beschreibung": "Pflichtschulung zur KI-Kompetenz nach Art. 4 KI-VO: Risikoklassen, verbotene Praktiken, Datenschutz und sicherer Umgang mit ChatGPT, Copilot und Co. Acht Level mit Übungen, Abschluss-Check und druckbarem Zertifikat.",
+    "kategorie": "Compliance",
+    "typ": "Interaktiv",
+    "datum": "2026-08-04",
+    "dauer": "30–35 Min.",
+    "link": "inhalte/ki-verordnung-2025.html"
   }
 ]
