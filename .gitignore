@@ -8,3 +8,7 @@ desktop.ini
 # OneDrive
 *.tmp
 ~$*
+
+# Passwortdateien niemals ins Repository
+.htpasswd
+**/.htpasswd

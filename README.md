@@ -6,7 +6,7 @@ Statische Visitenkarten-Webseite der elektromas GmbH.
 
 - `index.html` – die komplette Seite
 - `style.css` – Styling
-- `favicon.svg` – Icon für den Browser-Tab
+- `assets/` – Logo und Favicons (Quelle: elektromas.de)
 
 ## Deployment
 
@@ -18,5 +18,4 @@ Document-Root (z. B. `/html` oder `/httpdocs`) hochladen.
 
 ## Offene Punkte
 
-- Kontaktdaten in `index.html` durch die echten Firmendaten ersetzen
-- Impressum und Datenschutzerklärung ergänzen (in Deutschland Pflicht)
+- Impressum und Datenschutzerklärung als Unterseiten ergänzen (in Deutschland Pflicht)
