@@ -9,63 +9,211 @@
   <link rel="apple-touch-icon" href="assets/favicon-192.png">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="home">
 
-  <main class="card">
+  <header class="hero">
+    <div class="hero__deko" aria-hidden="true"></div>
 
-    <header class="card__head">
-      <img class="logo" src="assets/elektromas-logo.png" alt="elektromas GmbH"
-           width="389" height="149">
-      <p class="tagline">
-        Elektrotechnik für Gewerbe- und Ladenbau –<br>
-        Planung, Installation, Dokumentation, Wartung.
+    <div class="hero__inner">
+      <div class="hero__plate">
+        <img src="assets/elektromas-logo.png" alt="elektromas GmbH"
+             width="389" height="149">
+      </div>
+
+      <h1>Elektrotechnik für Gewerbe&#8209;&nbsp;und&nbsp;Ladenbau</h1>
+      <p class="hero__sub">
+        Planung, Installation, Dokumentation und Wartung –
+        seit 2009 aus Lübeck, mit rund 50 Mitarbeitern.
       </p>
-    </header>
 
-    <section class="services" aria-label="Leistungen">
-      <ul>
-        <li>Gebäudetechnik</li>
-        <li>Lichttechnik</li>
-        <li>PV-Anlagen</li>
-        <li>Automatisierung</li>
-        <li>EDV-Netzwerktechnik</li>
-        <li>Sicherheitstechnik</li>
-        <li>Energiemanagement</li>
-        <li>Prüfung nach VDE &amp; DGUV V3</li>
+      <p class="hero__notdienst">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+        </svg>
+        Notdienst 7 Tage die Woche, rund um die Uhr
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="tel:+494511211956">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2z"/>
+          </svg>
+          0451 12 11 956
+        </a>
+        <a class="btn" href="mailto:info@elektromas.de">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>
+          </svg>
+          info@elektromas.de
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="block" aria-labelledby="leistungen">
+      <h2 id="leistungen">Unsere Leistungen</h2>
+      <p class="block__lead">
+        Komplettlösungen für Unternehmen – von der ersten Planung
+        bis zur wiederkehrenden Prüfung.
+      </p>
+
+      <ul class="kacheln">
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M10 21v-6h4v6"/>
+            </svg>
+          </span>
+          <h3>Gebäudetechnik</h3>
+          <p>Elektroinstallation für Neubau, Umbau und Bestand.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18h6M10 22h4"/>
+              <path d="M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2z"/>
+            </svg>
+          </span>
+          <h3>Lichttechnik</h3>
+          <p>Beleuchtung und Sicherheitsbeleuchtung, inklusive Wartung.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 14h16L18 4H6L4 14zM2 14h20v3H2z"/><path d="M12 17v4M9 21h6"/>
+            </svg>
+          </span>
+          <h3>Photovoltaik</h3>
+          <p>PV-Anlagen samt Speicher und Einbindung ins Netz.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>
+            </svg>
+          </span>
+          <h3>Automatisierung</h3>
+          <p>Steuerungen und Schaltanlagen, im eigenen Haus gefertigt.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="6" rx="1"/>
+              <rect x="2" y="15" width="20" height="6" rx="1"/>
+              <path d="M6 6h.01M6 18h.01M12 9v6"/>
+            </svg>
+          </span>
+          <h3>Netzwerktechnik</h3>
+          <p>EDV-Verkabelung bis hin zu Lichtwellenleitern mit Spleißen.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </span>
+          <h3>Sicherheitstechnik</h3>
+          <p>Sicherheitstechnische Anlagen für Gewerbeobjekte.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18"/><path d="m7 15 3-4 3 3 5-7"/>
+            </svg>
+          </span>
+          <h3>Energiemanagement</h3>
+          <p>Energiemessung, Auswertung und Verbrauchsoptimierung.</p>
+        </li>
+
+        <li class="kachel">
+          <span class="kachel__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>
+            </svg>
+          </span>
+          <h3>Prüfung &amp; Doku</h3>
+          <p>Prüfung nach VDE und DGUV V3, technische Dokumentation.</p>
+        </li>
       </ul>
     </section>
 
-    <p class="badge">Notdienst 7 Tage die Woche, rund um die Uhr</p>
+    <section class="block" aria-labelledby="kontakt">
+      <h2 id="kontakt">Kontakt</h2>
 
-    <section class="contact" aria-label="Kontakt">
-      <a class="contact__row" href="tel:+494511211956">
-        <span class="contact__label">Telefon</span>
-        <span class="contact__value">0451 12 11 956</span>
-      </a>
-      <a class="contact__row" href="mailto:info@elektromas.de">
-        <span class="contact__label">E-Mail</span>
-        <span class="contact__value">info@elektromas.de</span>
-      </a>
-      <a class="contact__row" href="https://elektromas.de">
-        <span class="contact__label">Web</span>
-        <span class="contact__value">elektromas.de</span>
-      </a>
-      <a class="contact__row" href="https://www.google.com/maps/search/?api=1&amp;query=Aldermannweg+8+23560+L%C3%BCbeck">
-        <span class="contact__label">Adresse</span>
-        <span class="contact__value">Aldermannweg 8<br>23560 Lübeck</span>
-      </a>
+      <div class="kontakt">
+        <div class="kontakt__karte">
+          <dl>
+            <div class="zeile">
+              <dt>Telefon</dt>
+              <dd><a href="tel:+494511211956">0451 12 11 956</a></dd>
+            </div>
+            <div class="zeile">
+              <dt>E-Mail</dt>
+              <dd><a href="mailto:info@elektromas.de">info@elektromas.de</a></dd>
+            </div>
+            <div class="zeile">
+              <dt>Web</dt>
+              <dd><a href="https://elektromas.de">elektromas.de</a></dd>
+            </div>
+            <div class="zeile">
+              <dt>Anschrift</dt>
+              <dd>
+                <a href="https://www.google.com/maps/search/?api=1&amp;query=Aldermannweg+8+23560+L%C3%BCbeck">
+                  Aldermannweg 8<br>23560 Lübeck
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="kontakt__region">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <h3>Einsatzgebiet</h3>
+          <p>
+            Über Lübeck hinaus in ganz Schleswig-Holstein,
+            Mecklenburg-Vorpommern und Hamburg.
+          </p>
+        </div>
+      </div>
     </section>
 
-    <footer class="card__foot">
-      <p class="region">Im Einsatz in Schleswig-Holstein, Mecklenburg-Vorpommern und Hamburg</p>
+  </main>
+
+  <footer class="site-foot">
+    <div class="container">
       <nav class="legal__nav">
         <a href="impressum.html">Impressum</a>
         <a href="datenschutz.html">Datenschutz</a>
       </nav>
       <p>&copy; <span id="year">2026</span> elektromas GmbH</p>
-    </footer>
-
-  </main>
+    </div>
+  </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();

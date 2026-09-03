@@ -146,13 +146,13 @@ AUSSCHLUSS=(
   # Vorlagenordner, gehört nicht auf den Server: seine .htaccess enthält einen
   # Platzhalter statt eines echten AuthUserFile-Pfads. Apache würde sie lesen
   # und für dieses Verzeichnis mit einem 500er antworten.
-  "schulung/login-vorlage"
-  # Schulungsbereich vorerst zurückgehalten - er hat noch keinen Passwortschutz
-  # und wäre sonst öffentlich abrufbar. Zum Freigeben diese Zeile entfernen.
-  "schulung"
+  "Schulungen/login-vorlage"
+  # Interne Anleitung - beschreibt Serverpfade und den Passwortschutz und
+  # gehört daher nicht ins Web.
+  "Schulungen/ANLEITUNG.md"
 )
 
-# Vergleicht sowohl den vollen Pfad ("schulung/login-vorlage") als auch den
+# Vergleicht sowohl den vollen Pfad ("Schulungen/login-vorlage") als auch den
 # reinen Dateinamen ("Thumbs.db"), damit beide Schreibweisen in AUSSCHLUSS
 # funktionieren.
 ist_ausgeschlossen() {
