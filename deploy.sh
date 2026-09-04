@@ -149,6 +149,11 @@ AUSSCHLUSS=(
   # Interne Anleitung - beschreibt Serverpfade und den Passwortschutz und
   # gehört daher nicht ins Web.
   "Schulungen/ANLEITUNG.md"
+  # Ersteinrichtung ist erledigt. Die Datei bleibt im Projekt, falls je alle
+  # Administrator-Zugänge verlorengehen - dann einmalig von Hand hochladen,
+  # benutzen, wieder löschen. Sie verweigert sich ohnehin, solange Konten
+  # existieren, hat aber auf dem Server nichts verloren.
+  "einrichten.php"
   # Konfiguration, Programmbibliothek und Schulungsinhalte. Kommen NICHT ins
   # Web-Verzeichnis, sondern eine Ebene darüber - siehe privat_hochladen().
   "privat"
