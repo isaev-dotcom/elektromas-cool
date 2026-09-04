@@ -27,15 +27,27 @@ $versuche_tage  = (int)($CONFIG['aufbewahrung']['anmeldeversuche_tage'] ?? 7);
 $pdo = db();
 $bericht = [];
 
+/*
+ * Die Fristen werden als Ganzzahl in die Abfrage geschrieben statt gebunden:
+ * Ein Platzhalter hinter INTERVAL wird nicht von jeder MySQL- und
+ * MariaDB-Version akzeptiert. Sicher ist das, weil der Wert aus der
+ * Konfiguration stammt und mit (int) erzwungen wird - eine Eingabe von außen
+ * erreicht diese Stelle nie.
+ */
+$protokoll_tage = max(1, $protokoll_tage);
+$versuche_tage  = max(1, $versuche_tage);
+
 // Protokolleinträge nach Frist löschen.
-$stmt = $pdo->prepare('DELETE FROM protokoll WHERE zeitpunkt < (NOW() - INTERVAL ? DAY)');
-$stmt->execute([$protokoll_tage]);
-$bericht[] = $stmt->rowCount() . " Protokolleinträge (älter als {$protokoll_tage} Tage)";
+$anzahl = $pdo->exec(
+    'DELETE FROM protokoll WHERE zeitpunkt < (NOW() - INTERVAL ' . $protokoll_tage . ' DAY)'
+);
+$bericht[] = $anzahl . " Protokolleinträge (älter als {$protokoll_tage} Tage)";
 
 // Anmeldeversuche werden nur für die Brute-Force-Bremse gebraucht.
-$stmt = $pdo->prepare('DELETE FROM anmeldeversuche WHERE zeitpunkt < (NOW() - INTERVAL ? DAY)');
-$stmt->execute([$versuche_tage]);
-$bericht[] = $stmt->rowCount() . " Anmeldeversuche (älter als {$versuche_tage} Tage)";
+$anzahl = $pdo->exec(
+    'DELETE FROM anmeldeversuche WHERE zeitpunkt < (NOW() - INTERVAL ' . $versuche_tage . ' DAY)'
+);
+$bericht[] = $anzahl . " Anmeldeversuche (älter als {$versuche_tage} Tage)";
 
 // Abgelaufene oder benutzte Token haben keinen Zweck mehr.
 $anzahl = $pdo->exec(
