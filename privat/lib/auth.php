@@ -8,19 +8,39 @@ declare(strict_types=1);
 // --- Passwörter ------------------------------------------------------------
 
 /**
- * Argon2id ist der Nachfolger von bcrypt und seit PHP 7.3 eingebaut; der
- * Server hat es. Anders als bcrypt kostet es dem Angreifer nicht nur Rechen-,
- * sondern auch Arbeitsspeicher, was Grafikkarten-Angriffe teuer macht.
- * Fällt Argon2id einmal weg, greift bcrypt.
+ * Parameter für Argon2id.
+ *
+ * threads MUSS 1 sein: Dieser Server nutzt die Argon2-Umsetzung aus libsodium,
+ * und die kennt keine Parallelität. Jeder andere Wert löst einen ValueError
+ * aus ("A thread value other than 1 is not supported by this implementation").
+ *
+ * 64 MB Arbeitsspeicher und vier Durchgänge entsprechen den PHP-Vorgaben. Sie
+ * stehen hier trotzdem ausdrücklich, damit eine spätere Änderung der Vorgaben
+ * nicht unbemerkt die Stärke der Hashes verschiebt.
+ */
+function argon_optionen(): array
+{
+    return [
+        'memory_cost' => 65536,   // 64 MB
+        'time_cost'   => 4,
+        'threads'     => 1,
+    ];
+}
+
+/**
+ * Argon2id ist der Nachfolger von bcrypt. Anders als bcrypt kostet es dem
+ * Angreifer nicht nur Rechenzeit, sondern auch Arbeitsspeicher - das macht
+ * Angriffe mit Grafikkarten teuer. Fällt Argon2id weg, greift bcrypt.
  */
 function passwort_hashen(string $klartext): string
 {
     if (defined('PASSWORD_ARGON2ID')) {
-        return password_hash($klartext, PASSWORD_ARGON2ID, [
-            'memory_cost' => 65536,   // 64 MB
-            'time_cost'   => 4,
-            'threads'     => 2,
-        ]);
+        try {
+            return password_hash($klartext, PASSWORD_ARGON2ID, argon_optionen());
+        } catch (Throwable $e) {
+            // Lieber ein bcrypt-Hash als gar kein Konto.
+            error_log('Argon2id nicht nutzbar, weiche auf bcrypt aus: ' . $e->getMessage());
+        }
     }
     return password_hash($klartext, PASSWORD_BCRYPT, ['cost' => 12]);
 }

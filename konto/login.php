@@ -46,8 +46,10 @@ if (ist_post()) {
             && password_verify($passwort, $benutzer['passwort_hash']);
 
         if ($passt && $benutzer['status'] === 'aktiv') {
-            // Rechenaufwand nachziehen, falls sich die Parameter geändert haben.
-            if (password_needs_rehash($benutzer['passwort_hash'], PASSWORD_ARGON2ID)) {
+            // Rechenaufwand nachziehen, falls sich die Parameter geändert
+            // haben. Dieselben Optionen wie beim Hashen, sonst gilt jeder Hash
+            // als veraltet und wird bei jeder Anmeldung neu berechnet.
+            if (password_needs_rehash($benutzer['passwort_hash'], PASSWORD_ARGON2ID, argon_optionen())) {
                 $neu = passwort_hashen($passwort);
                 $up = db()->prepare('UPDATE benutzer SET passwort_hash = ? WHERE id = ?');
                 $up->execute([$neu, $benutzer['id']]);
