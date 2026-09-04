@@ -1,22 +1,26 @@
 # Grundeinstellungen für elektromas.cool
 
 Options -Indexes
+DirectoryIndex index.php index.html
 
 # Der Schulungsbereich liegt unter /Schulungen/ (großes S, Mehrzahl).
 # Linux unterscheidet Groß- und Kleinschreibung in Adressen, deshalb leiten
-# wir die naheliegenden Schreibweisen dorthin um - /schulungen, /Schulung,
-# /SCHULUNG und so weiter.
+# wir die naheliegenden Schreibweisen dorthin um.
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Nur umleiten, wenn nicht ohnehin schon die richtige Schreibweise aufgerufen
-  # wird. Diese Bedingung prüft mit Rücksicht auf Groß- und Kleinschreibung und
-  # verhindert damit eine Endlosschleife.
   RewriteCond %{REQUEST_URI} !^/Schulungen(/|$)
   RewriteRule ^schulung(en)?/?$ /Schulungen/ [NC,R=301,L]
 </IfModule>
 
-# .htaccess und .htpasswd nie ausliefern
-<FilesMatch "^\.ht">
+# Konfigurations- und Passwortdateien nie ausliefern
+<FilesMatch "^\.ht|\.(env|sql|log)$">
   Require all denied
 </FilesMatch>
+
+# Anmeldung und Verwaltung gehören nicht in Suchmaschinen
+<IfModule mod_headers.c>
+  <FilesMatch "\.php$">
+    Header set X-Robots-Tag "noindex, nofollow"
+  </FilesMatch>
+</IfModule>

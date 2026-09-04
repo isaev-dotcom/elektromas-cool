@@ -1,0 +1,266 @@
+/* ===========================================================================
+   Anmeldung, Konto und Verwaltung.
+   Ergänzt style.css (Farben, Reset und Logo kommen von dort).
+   =========================================================================== */
+
+body.konto {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(1000px 560px at 50% -15%, #dbe6f5, transparent 70%),
+    var(--page);
+}
+
+.konto__karte {
+  width: 100%;
+  max-width: 430px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--blau);
+  border-radius: var(--radius);
+  padding: 34px 32px 24px;
+  box-shadow: 0 18px 44px rgba(0, 61, 144, .12);
+}
+body.konto--breit .konto__karte { max-width: 1000px; }
+
+/* Kopf */
+.konto__kopf {
+  text-align: center;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.konto__kopf .logo { width: 168px; }
+.konto__kopf h1 {
+  margin-top: 16px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--blau);
+  letter-spacing: -.01em;
+}
+
+.konto__lead {
+  margin: 20px 0 4px;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.konto__hinweis {
+  margin: -4px 0 14px;
+  font-size: .8rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Meldungen */
+.meldung {
+  margin: 18px 0 4px;
+  padding: 12px 14px;
+  font-size: .88rem;
+  line-height: 1.55;
+  border-radius: 9px;
+  border-left: 3px solid;
+}
+.meldung--fehler  { background: #fdecec; border-color: #d33; color: #7d1d1d; }
+.meldung--ok      { background: #eaf7ef; border-color: #2e9e5b; color: #1c5c36; }
+.meldung--hinweis { background: #fdf6e9; border-color: var(--orange); color: #5c4a2a; }
+
+/* Formulare */
+form { margin-top: 20px; }
+
+label {
+  display: block;
+  margin: 14px 0 5px;
+  font-size: .76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"],
+input[type="search"],
+select {
+  width: 100%;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: .95rem;
+  color: var(--text);
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blau-hell);
+  box-shadow: 0 0 0 3px rgba(0, 61, 144, .12);
+}
+
+.knopf {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 22px;
+  font: inherit;
+  font-size: .93rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  color: var(--blau);
+  background: #f2f6fc;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.knopf:hover { background: #eaf1fb; border-color: #c3d4ec; }
+
+.knopf--primaer {
+  width: 100%;
+  color: #fff;
+  background: var(--blau);
+  border-color: var(--blau);
+}
+.knopf--primaer:hover { background: var(--orange); border-color: var(--orange); color: #2a1c00; }
+
+.konto__zusatz {
+  margin-top: 18px;
+  font-size: .87rem;
+  text-align: center;
+}
+.konto__zusatz--klein { font-size: .8rem; color: var(--muted); }
+.konto__zusatz a { color: var(--blau); }
+
+/* Fuß */
+.konto__fuss {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: .78rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.konto__fuss a { color: var(--blau); }
+
+/* --- Verwaltung --------------------------------------------------------- */
+
+.admin__aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 4px 0 8px;
+}
+.admin__aktionen .knopf { margin-top: 12px; width: auto; }
+
+/* Tabellen dürfen waagerecht scrollen, die Seite selbst nie. */
+.tabelle-rahmen {
+  margin-top: 18px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .87rem;
+  min-width: 640px;
+}
+.tabelle th {
+  text-align: left;
+  padding: 11px 13px;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  background: #f6f9fd;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.tabelle td {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.tabelle tr:last-child td { border-bottom: 0; }
+
+.leise { color: var(--muted); font-size: .84em; }
+
+.marke {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: .68rem;
+  font-weight: 600;
+  border-radius: 999px;
+  color: var(--blau);
+  background: #eaf1fb;
+}
+
+.status {
+  display: inline-block;
+  padding: 3px 9px;
+  font-size: .72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+.status--aktiv      { color: #1c5c36; background: #e3f5ea; }
+.status--eingeladen { color: #7a4f00; background: #fdf0d9; }
+.status--gesperrt   { color: #7d1d1d; background: #fbe3e3; }
+
+.inline { display: inline; margin: 0; }
+
+.aktionen { white-space: nowrap; }
+.aktionen .inline + .inline { margin-left: 4px; }
+
+.mini {
+  padding: 5px 10px;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 600;
+  color: var(--blau);
+  background: #f2f6fc;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.mini:hover { background: #eaf1fb; border-color: #c3d4ec; }
+.mini--warnung { color: #a12626; background: #fdf0f0; border-color: #f0d2d2; }
+.mini--warnung:hover { background: #fbe3e3; border-color: #e6bcbc; }
+
+.tabelle select {
+  padding: 5px 8px;
+  font-size: .82rem;
+  width: auto;
+}
+
+.einmal-link {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  background: #f6f9fd;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow-wrap: anywhere;
+}
+.einmal-link code { font-size: .82rem; }
+
+.blaettern {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  font-size: .87rem;
+}
+.blaettern a { color: var(--blau); }
+
+@media (max-width: 560px) {
+  body.konto { padding: 16px; }
+  .konto__karte { padding: 28px 20px 20px; }
+  .konto__kopf .logo { width: 145px; }
+}

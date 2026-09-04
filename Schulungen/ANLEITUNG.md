@@ -1,131 +1,99 @@
 # Schulungsbereich – Anleitung
 
 Adresse: `https://elektromas.cool/Schulungen/`
-(`/schulungen`, `/Schulung` und ähnliche Schreibweisen werden per Weiterleitung erkannt.)
+(`/schulungen`, `/Schulung` und ähnliche Schreibweisen werden weitergeleitet.)
 
-**Aktuell ohne Login** – die Seite ist für jeden erreichbar, der die Adresse
-kennt. Sie ist per `noindex` von Suchmaschinen ausgenommen, taucht also nicht
-bei Google auf. Der Login lässt sich jederzeit nachrüsten, siehe Abschnitt 3.
+**Der Bereich ist passwortgeschützt.** Zugänge gibt es nur auf Einladung durch
+einen Administrator, eine öffentliche Registrierung existiert nicht.
 
-## Dateien
+## Wo liegt was
+
+Die Schulungsdateien liegen **außerhalb** des Web-Verzeichnisses, eine Ebene
+über `httpdocs`:
 
 ```
-Schulungen/
-  index.html              Übersicht aller Schulungen
-  schulungen.json         <- hier neue Schulungen eintragen
-  schulung.css            Styling
-  inhalte/                PDFs, Videos, HTML-Schulungen
-    beispiel-schulung.html
-  ANLEITUNG.md            diese Datei (nur intern)
-  login-vorlage/          Bausteine für den späteren Passwortschutz
-    .htaccess
-    .htpasswd.example
+privat/
+  inhalte/
+    schulungen.json         <- hier neue Schulungen eintragen
+    sicherheitsunterweisung.html
+    ki-verordnung-2025.html
+    mobiler-monteur.html
+  lib/                      Programmbibliothek
+  config.php                Zugangsdaten (nicht im Repository)
+
+httpdocs/Schulungen/
+  index.php                 Übersicht, prüft die Anmeldung
+  datei.php                 liefert eine Schulung aus
+  schulung.css
 ```
 
----
+Das ist der Kern des Schutzes: Zu den Schulungsdateien führt **keine Adresse**.
+Jeder Abruf läuft über `datei.php`, und die prüft vorher die Anmeldung. Lägen
+die Dateien weiter unter `httpdocs`, käme jeder an sie heran, der die Adresse
+kennt – ganz gleich, was davor an Login steht.
 
-## 1. Eine neue Schulung veröffentlichen
+## Eine neue Schulung veröffentlichen
 
-1. Inhalt nach `Schulungen/inhalte/` legen – PDF, Video oder HTML-Seite.
-   Als Vorlage für eine HTML-Schulung dient `inhalte/beispiel-schulung.html`.
+1. Die fertige HTML-Datei nach `privat/inhalte/` legen.
 
-2. In `Schulungen/schulungen.json` einen Eintrag ergänzen:
+2. In `privat/inhalte/schulungen.json` einen Eintrag ergänzen:
 
    ```json
    {
-     "titel": "Arbeiten unter Spannung",
+     "id": "erste-hilfe",
+     "datei": "erste-hilfe.html",
+     "titel": "Erste Hilfe im Betrieb",
      "beschreibung": "Kurzbeschreibung, ein bis zwei Sätze.",
      "kategorie": "Arbeitssicherheit",
-     "typ": "PDF",
+     "typ": "Interaktiv",
      "datum": "2026-10-01",
-     "dauer": "30 Min.",
-     "link": "inhalte/arbeiten-unter-spannung.pdf"
+     "dauer": "20 Min."
    }
    ```
 
-   | Feld           | Pflicht | Bedeutung                                          |
-   |----------------|---------|-----------------------------------------------------|
-   | `titel`        | ja      | Überschrift der Kachel                               |
-   | `link`         | ja      | Pfad relativ zu `Schulungen/`                          |
-   | `beschreibung` | nein    | Text auf der Kachel                                  |
-   | `kategorie`    | nein    | z. B. Arbeitssicherheit, Technik, Onboarding         |
-   | `typ`          | nein    | PDF, Video, HTML …                                   |
-   | `datum`        | nein    | `JJJJ-MM-TT`, bestimmt die Sortierung (neu zuerst)   |
-   | `dauer`        | nein    | z. B. „45 Min."                                      |
+   | Feld | Pflicht | Bedeutung |
+   |---|---|---|
+   | `id` | ja | eindeutig, erscheint in der Adresse |
+   | `datei` | ja | Dateiname in `privat/inhalte/` |
+   | `titel` | ja | Überschrift in der Übersicht |
+   | `beschreibung` | nein | zwei Sätze auf der Kachel |
+   | `kategorie`, `typ` | nein | die beiden Marken auf der Kachel |
+   | `datum` | nein | Sortierung, neueste zuerst |
+   | `dauer` | nein | Angabe auf der Kachel |
 
-   Auf die Kommas zwischen den Einträgen achten – nach dem letzten Eintrag steht
-   **kein** Komma.
+3. Hochladen mit `./deploy.sh`.
 
-3. Änderungen committen und pushen. Der Webspace zieht den neuen Stand.
+**Vor dem Hochladen prüfen**, ob die Datei vollständig ist – bei einer aus
+Vorlage und Medien gebauten Schulung:
 
-4. Den Beispiel-Eintrag löschen, sobald die erste echte Schulung online ist.
+```
+grep -o "{{[A-Z0-9_]*}}" datei.html
+```
 
----
+Kommt dabei etwas heraus, fehlen Medien und die Schulung zeigt an diesen
+Stellen leere Platzhalter.
 
-## 2. Was ohne Login gilt
+## Zugänge verwalten
 
-Jeder mit der Adresse kommt an die Inhalte. Solange keine personenbezogenen oder
-vertraulichen Unterlagen dort liegen, ist das unkritisch. Sobald Teilnehmerdaten,
-Prüfungsnachweise oder lizenzpflichtiges Material dazukommen, sollte der Login
-aktiviert werden.
+Unter `https://elektromas.cool/admin/` (nur für Administratoren):
 
----
+- **Person einladen** – legt das Konto an und verschickt den Einladungslink.
+  Das Passwort setzt die eingeladene Person selbst; niemand vergibt Passwörter
+  für andere.
+- **Freigeben / Sperren / Löschen** – Sperren behält die Daten, Löschen
+  entfernt sie endgültig.
+- **Rolle ändern** – Mitarbeiter sehen Schulungen, Administratoren zusätzlich
+  die Verwaltung.
+- **Protokoll** – Anmeldungen, Fehlversuche und Änderungen an Zugängen.
 
-## 3. Login später aktivieren
+Das eigene Konto lässt sich nicht sperren oder löschen. Das ist Absicht: Sonst
+könnte man sich versehentlich selbst aussperren.
 
-Der Login ist Apache-Basic-Auth: **Benutzername = E-Mail-Adresse**, das Passwort
-vergeben Sie und teilen es per E-Mail mit. Anfragen laufen über
-`isaev@elektromas.de`.
+## Wenn jemand sein Passwort vergisst
 
-### Variante A – über das Alphahosting-Kundenmenü / Plesk (empfohlen)
+Die Person nutzt „Passwort vergessen" auf der Anmeldeseite. Es ist kein
+Eingreifen nötig, und Sie sehen fremde Passwörter zu keinem Zeitpunkt – sie
+sind nur als Argon2id-Hash gespeichert und lassen sich nicht zurückrechnen.
 
-1. Im Kundenmenü **„Passwortgeschützte Verzeichnisse"** (bzw. „Verzeichnisschutz")
-   öffnen.
-2. Verzeichnis `/Schulungen` schützen.
-3. Bereichsname (Realm) z. B.: `Schulungsbereich elektromas GmbH`
-4. Benutzer anlegen – **als Benutzername die E-Mail-Adresse** eintragen,
-   Passwort vergeben.
-
-Plesk erzeugt `.htaccess` und `.htpasswd` selbst; die Dateien in
-`login-vorlage/` werden dann nicht gebraucht.
-
-### Variante B – Dateien selbst hochladen
-
-1. `Schulungen/login-vorlage/.htaccess` nach `Schulungen/.htaccess` kopieren.
-
-2. Darin die Zeile `AuthUserFile` auf den **absoluten Serverpfad** ändern,
-   zum Beispiel:
-
-   ```
-   AuthUserFile /var/www/vhosts/elektromas.cool/httpdocs/Schulungen/.htpasswd
-   ```
-
-   Den richtigen Pfad zeigt der Dateimanager im Kundenmenü an.
-
-3. `.htpasswd` erzeugen (auf einem Rechner mit Apache-Tools):
-
-   ```
-   htpasswd -B -c .htpasswd max.mustermann@firma.de     # erster Benutzer
-   htpasswd -B    .htpasswd anna.beispiel@firma.de      # weitere Benutzer
-   ```
-
-   `-c` legt die Datei neu an und **überschreibt** eine vorhandene – nur beim
-   allerersten Benutzer verwenden.
-
-4. `.htpasswd` per FTP nach `/Schulungen/.htpasswd` hochladen. Die Datei ist in
-   `.gitignore` eingetragen und gehört nicht ins Repository.
-
-> **Solange der Pfad in `AuthUserFile` nicht stimmt, liefert der Server beim
-> Aufruf von `/Schulungen/` einen Fehler 500.** Das ist der häufigste Stolperstein.
-
-### Neuen Teilnehmer freischalten
-
-Einfach einen weiteren Benutzer mit dessen E-Mail-Adresse anlegen (Variante A)
-oder eine Zeile per `htpasswd -B` ergänzen (Variante B) und das Passwort
-zurückmailen.
-
-### Hinweis zur Sicherheit
-
-Basic-Auth überträgt die Zugangsdaten nur dann verschlüsselt, wenn die Seite über
-**HTTPS** läuft. Bitte sicherstellen, dass das SSL-Zertifikat aktiv ist und
-`http://` auf `https://` weitergeleitet wird.
+Kommt keine Mail an, prüfen Sie den Spam-Ordner. Hilft das nicht, schicken Sie
+in der Verwaltung über „Einladung neu" einen frischen Link.

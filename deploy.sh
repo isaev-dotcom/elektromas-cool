@@ -146,10 +146,12 @@ AUSSCHLUSS=(
   # Vorlagenordner, gehört nicht auf den Server: seine .htaccess enthält einen
   # Platzhalter statt eines echten AuthUserFile-Pfads. Apache würde sie lesen
   # und für dieses Verzeichnis mit einem 500er antworten.
-  "Schulungen/login-vorlage"
   # Interne Anleitung - beschreibt Serverpfade und den Passwortschutz und
   # gehört daher nicht ins Web.
   "Schulungen/ANLEITUNG.md"
+  # Konfiguration, Programmbibliothek und Schulungsinhalte. Kommen NICHT ins
+  # Web-Verzeichnis, sondern eine Ebene darüber - siehe privat_hochladen().
+  "privat"
 )
 
 # Vergleicht sowohl den vollen Pfad ("Schulungen/login-vorlage") als auch den
@@ -312,6 +314,78 @@ else
     [ $FEHLER -gt 0 ] && exit 1
   fi
 fi
+
+# --- Privater Ordner --------------------------------------------------------
+#
+# privat/ enthält Konfiguration, Programmbibliothek und die Schulungsdateien.
+# Er gehört NICHT ins Web-Verzeichnis, sondern eine Ebene darüber - damit ist
+# über den Browser keine dieser Dateien erreichbar, auch nicht die
+# Schulungsinhalte. Ausgeliefert werden sie ausschließlich durch datei.php,
+# und die prüft vorher die Anmeldung.
+
+: "${REMOTE_PRIVAT:=$(dirname "$REMOTE_DIR")/privat}"
+REMOTE_PRIVAT="${REMOTE_PRIVAT//\/\///}"
+
+privat_hochladen() {
+  [ -d privat ] || return 0
+
+  echo
+  echo "Privater Ordner -> $REMOTE_PRIVAT"
+
+  if [ "$PROTOCOL" = "sftp" ]; then
+    echo "  Hinweis: über sftp bitte einmalig von Hand übertragen." >&2
+    return 0
+  fi
+
+  local anzahl=0 fehler=0
+
+  # Sitzungsdateien sind Laufzeitdaten und bleiben lokal; das Verzeichnis
+  # selbst muss auf dem Server aber existieren.
+  local liste
+  liste=$(find privat -type f ! -path 'privat/sessions/*' | sort)
+
+  while IFS= read -r pfad; do
+    [ -n "$pfad" ] || continue
+    local rel="${pfad#privat/}"
+    local ziel="ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_PRIVAT/$rel"
+
+    if [ $DRY_RUN -eq 1 ]; then
+      echo "  würde hochladen: $rel"
+      continue
+    fi
+
+    if printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
+       | curl -sS --fail --ftp-create-dirs "${CURL_SSL[@]}" \
+              -K - -T "$pfad" "$ziel"; then
+      echo "  ok      $rel"
+      anzahl=$((anzahl + 1))
+    else
+      echo "  FEHLER  $rel" >&2
+      fehler=$((fehler + 1))
+    fi
+  done <<< "$liste"
+
+  # sessions/ anlegen, indem eine Platzhalterdatei hineingelegt wird.
+  if [ $DRY_RUN -eq 0 ]; then
+    printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
+      | curl -sS --ftp-create-dirs "${CURL_SSL[@]}" -K - \
+             -T /dev/null "ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_PRIVAT/sessions/.platzhalter" \
+        >/dev/null 2>&1 || true
+    echo
+    echo "  $anzahl Datei(en) übertragen, $fehler Fehler."
+    [ $fehler -gt 0 ] && return 1
+  fi
+  return 0
+}
+
+# CURL_SSL ist nur im curl-Zweig gesetzt - hier für den Fall nachziehen, dass
+# lftp den Hauptteil übernommen hat.
+if [ "${CURL_SSL+gesetzt}" != "gesetzt" ]; then
+  CURL_SSL=()
+  [ "$PROTOCOL" = "ftps" ] && CURL_SSL=(--ssl-reqd)
+fi
+
+privat_hochladen
 
 echo
 if [ $DRY_RUN -eq 1 ]; then

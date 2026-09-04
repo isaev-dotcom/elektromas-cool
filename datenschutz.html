@@ -25,12 +25,13 @@
     <section class="legal">
 
       <p class="lead">
-        Diese Website ist bewusst schlicht gehalten: Sie setzt <strong>keine Cookies</strong>,
-        bindet <strong>keine externen Dienste</strong> ein, nutzt <strong>keine Analyse-
-        oder Tracking-Werkzeuge</strong> und enthält <strong>kein Kontaktformular</strong>.
-        Alle Schriften, Bilder und Stylesheets werden vom eigenen Server geladen.
-        Eine Ausnahme bildet der interne Schulungsbereich, der den Lernfortschritt
-        auf Ihrem Gerät ablegt – siehe Abschnitt 7.
+        Der öffentliche Teil dieser Website ist bewusst schlicht gehalten: Er setzt
+        <strong>keine Cookies</strong>, bindet <strong>keine externen Dienste</strong> ein,
+        nutzt <strong>keine Analyse- oder Tracking-Werkzeuge</strong> und enthält
+        <strong>kein Kontaktformular</strong>. Alle Schriften, Bilder und Stylesheets
+        werden vom eigenen Server geladen. Der interne Schulungsbereich unter
+        <em>/Schulungen</em> ist passwortgeschützt und verarbeitet dafür
+        zusätzliche Daten – das steht vollständig in Abschnitt 7.
       </p>
 
       <h2>1. Verantwortlicher</h2>
@@ -132,18 +133,81 @@
         Gleiches gilt für den Verweis auf elektromas.de.
       </p>
 
-      <h2>7. Schulungsbereich</h2>
+      <h2>7. Schulungsbereich mit Benutzerkonto</h2>
       <p>
         Unter <em>/Schulungen</em> stellen wir unseren Mitarbeitenden interne
-        Schulungen bereit. Diese Seiten sind über <em>noindex</em> von
-        Suchmaschinen ausgenommen.
+        Schulungen bereit. Der Bereich ist passwortgeschützt und über
+        <em>noindex</em> von Suchmaschinen ausgenommen. Eine öffentliche
+        Registrierung gibt es nicht: Zugänge vergibt ausschließlich die
+        Geschäftsführung per Einladung.
+      </p>
+
+      <h3>7.1 Benutzerkonto</h3>
+      <p>
+        Zu jedem Zugang speichern wir Ihre <strong>E-Mail-Adresse</strong>,
+        Ihren <strong>Namen</strong>, Ihre <strong>Rolle</strong>
+        (Mitarbeiter oder Administrator), den <strong>Kontostatus</strong>
+        sowie die Zeitpunkte von <strong>Erstellung, Aktivierung und letzter
+        Anmeldung</strong>.
       </p>
       <p>
-        <strong>Speicherung auf Ihrem Gerät:</strong> Um eine begonnene Schulung
-        unterbrechen und später fortsetzen zu können, legt die Schulung Ihren
-        Lernfortschritt sowie die von Ihnen eingegebenen Angaben – Name und
-        gegebenenfalls Abteilung – im lokalen Speicher Ihres Browsers
-        (<em>localStorage</em>) ab. Es handelt sich dabei nicht um Cookies.
+        Ihr Passwort speichern wir <strong>nicht</strong>. Abgelegt wird nur ein
+        kryptografischer Hash nach dem Verfahren <em>Argon2id</em>. Aus ihm
+        lässt sich das Passwort nicht zurückrechnen – auch von uns nicht.
+      </p>
+      <p>
+        <strong>Rechtsgrundlage</strong> ist Art. 6 Abs. 1 lit. b DSGVO in
+        Verbindung mit § 26 Abs. 1 BDSG: Die Verarbeitung ist zur Durchführung
+        des Beschäftigungsverhältnisses erforderlich, da wir Sie zu Unterweisungen
+        verpflichten müssen und deren Durchführung zu dokumentieren haben
+        (§ 12 ArbSchG, § 4 DGUV Vorschrift 1).
+      </p>
+      <p>
+        <strong>Speicherdauer:</strong> bis zur Löschung des Zugangs, in der
+        Regel mit dem Ende des Beschäftigungsverhältnisses.
+      </p>
+
+      <h3>7.2 Sitzungs-Cookie</h3>
+      <p>
+        Nach der Anmeldung setzen wir ein technisch notwendiges Cookie
+        (<em>emas_sitzung</em>), damit Sie beim Wechsel zwischen Seiten
+        angemeldet bleiben. Es enthält lediglich eine zufällige Kennung, keine
+        personenbezogenen Daten, und wird beim Schließen des Browsers oder beim
+        Abmelden gelöscht. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG – ohne
+        dieses Cookie ist ein Anmeldebereich technisch nicht möglich. Eine
+        Einwilligung ist dafür nicht erforderlich, ein Cookie-Banner daher auch
+        nicht.
+      </p>
+
+      <h3>7.3 Protokollierung</h3>
+      <p>
+        Zur Sicherheit des Zugangs protokollieren wir Anmeldungen und
+        fehlgeschlagene Anmeldeversuche, das Einlösen von Einladungen,
+        Passwortänderungen, Änderungen an Zugängen sowie das Öffnen einer
+        Schulung – jeweils mit Zeitpunkt und E-Mail-Adresse.
+      </p>
+      <p>
+        Ihre <strong>IP-Adresse speichern wir nicht im Klartext</strong>,
+        sondern ausschließlich als nicht umkehrbare Prüfsumme. Damit lässt sich
+        erkennen, dass mehrere Versuche von derselben Quelle stammen – was zur
+        Abwehr automatisierter Angriffe nötig ist –, ohne die Adresse selbst
+        vorzuhalten (Art. 32 DSGVO).
+      </p>
+      <p>
+        <strong>Rechtsgrundlage</strong> ist unser berechtigtes Interesse an der
+        Sicherheit des Zugangs nach Art. 6 Abs. 1 lit. f DSGVO, für die
+        Unterweisungsnachweise zusätzlich Art. 6 Abs. 1 lit. c DSGVO.
+        <strong>Speicherdauer:</strong> Protokolleinträge werden nach 90 Tagen,
+        Anmeldeversuche nach 7 Tagen automatisch gelöscht.
+      </p>
+
+      <h3>7.4 Speicherung auf Ihrem Gerät</h3>
+      <p>
+        Um eine begonnene Schulung unterbrechen und später fortsetzen zu können,
+        legt die Schulung Ihren Lernfortschritt sowie die von Ihnen eingegebenen
+        Angaben – Name und gegebenenfalls Abteilung – im lokalen Speicher Ihres
+        Browsers (<em>localStorage</em>) ab. Es handelt sich dabei nicht um
+        Cookies.
       </p>
       <p>
         <strong>Diese Daten verlassen Ihr Gerät nicht.</strong> Sie werden weder
@@ -152,7 +216,7 @@
         Browser; ob Sie es ausdrucken und einreichen, entscheiden Sie selbst.
       </p>
       <p>
-        <strong>Rechtsgrundlage</strong> für das Speichern ist § 25 Abs. 2 Nr. 2
+        <strong>Rechtsgrundlage</strong> für das Speichern auf dem Gerät ist § 25 Abs. 2 Nr. 2
         TDDDG, da die Speicherung für den von Ihnen ausdrücklich gewünschten
         Dienst – das Fortsetzen der Schulung – unbedingt erforderlich ist. Eine
         Einwilligung ist dafür nicht nötig. Soweit dabei personenbezogene Daten

@@ -4,11 +4,33 @@ Statische Visitenkarten-Webseite der elektromas GmbH.
 
 ## Struktur
 
-- `index.html` – die Visitenkarte
-- `impressum.html` – Impressum
-- `datenschutz.html` – Datenschutzerklärung
-- `style.css` – Styling aller Seiten
-- `assets/` – Logo und Favicons (Quelle: elektromas.de)
+Alles außer `privat/` landet im Web-Verzeichnis `httpdocs`.
+
+```
+index.html            die Visitenkarte
+impressum.html        Impressum
+datenschutz.html      Datenschutzerklärung
+style.css             Styling aller Seiten
+assets/               Logo und Favicons (Quelle: elektromas.de)
+einrichten.php        einmalige Ersteinrichtung, danach löschen
+
+konto/                Anmeldung, Passwort vergessen, Einladung annehmen
+admin/                Benutzerverwaltung und Protokoll
+Schulungen/           geschützte Übersicht (index.php) und Auslieferung (datei.php)
+
+privat/               NICHT im Web-Verzeichnis, eine Ebene darüber
+  config.php            Zugangsdaten (nicht im Repository)
+  schema.sql            Datenbankstruktur
+  aufraeumen.php        täglicher Cronjob, löscht alte Daten
+  lib/                  Programmbibliothek
+  inhalte/              die Schulungsdateien und ihr Katalog
+  sessions/             Sitzungsdaten
+```
+
+Warum die Trennung: Läge `inhalte/` unter `httpdocs`, käme jeder an die
+Schulungen, der die Adresse kennt – ganz gleich, was davor an Anmeldung steht.
+So gibt es zu diesen Dateien **keine Adresse**; jeder Abruf läuft über
+`Schulungen/datei.php`, und die prüft vorher die Anmeldung.
 
 Die Seiten laden ausschließlich lokale Dateien: keine Cookies, kein Tracking,
 keine externen Schriften oder Skripte. Das ist bewusst so und die Grundlage
@@ -59,6 +81,18 @@ Stand der Dinge, falls jemand es erneut versucht:
 - Eine zweite Anbindung auf `/httpdocs` hat das Verzeichnis geleert, aber
   nicht befüllt. Zwei Repositories mit ineinanderliegenden Zielpfaden auf
   derselben Domain vertragen sich offenbar nicht.
+
+## Benutzerverwaltung
+
+Der Schulungsbereich ist passwortgeschützt. Zugänge gibt es nur auf Einladung,
+eine öffentliche Registrierung existiert nicht.
+
+**Einrichtung: siehe [privat/EINRICHTUNG.md](privat/EINRICHTUNG.md).** Ohne
+`privat/config.php` und eine eingespielte Datenbank läuft der Bereich nicht.
+
+Technik: PHP 8.4, MySQL, Passwörter als Argon2id-Hash. Node.js scheidet aus –
+auf diesem Shared-Hosting gibt es keinen dauerhaften Prozess, PHP-FPM ist die
+einzige Ausführungsumgebung.
 
 ## Offene Punkte
 

@@ -15,3 +15,10 @@ desktop.ini
 
 # Zugangsdaten - niemals ins Repository
 .env
+
+# Datenbank-Zugangsdaten - niemals ins Repository
+privat/config.php
+
+# Laufzeitdaten
+privat/sessions/*
+!privat/sessions/.gitkeep

@@ -290,3 +290,29 @@ body {
   .page__head .logo { width: 135px; }
   .page__title h1 { font-size: 1.28rem; }
 }
+
+/* Kontozeile im Kopf (angemeldeter Benutzer, Abmelden) */
+.page__konto {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+  font-size: .84rem;
+}
+.page__konto a {
+  color: var(--blau);
+  font-weight: 600;
+  text-decoration: none;
+}
+.page__konto a:hover { color: var(--orange); text-decoration: underline; }
+.page__konto .leise { color: var(--muted); }
+
+@media (max-width: 640px) {
+  .page__konto {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+}
