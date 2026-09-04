@@ -1,5 +1,14 @@
 [
   {
+    "titel": "Sicherheitsunterweisung im Elektrohandwerk",
+    "beschreibung": "Jährliche Unterweisung nach § 12 ArbSchG und § 4 DGUV Vorschrift 1: elektrische Gefahren, die 5 Sicherheitsregeln, Prüfpflichten, Baustelle und Absturz, Lärm und Gefahrstoffe, PSA und Ladungssicherung. Sieben Level mit Abschluss-Check und Zertifikat für die Personalakte.",
+    "kategorie": "Arbeitssicherheit",
+    "typ": "Interaktiv",
+    "datum": "2026-09-03",
+    "dauer": "ca. 40 Min.",
+    "link": "inhalte/sicherheitsunterweisung.html"
+  },
+  {
     "titel": "KI-Verordnung 2025 – Sicher arbeiten mit KI",
     "beschreibung": "Pflichtschulung zur KI-Kompetenz nach Art. 4 KI-VO: Risikoklassen, verbotene Praktiken, Datenschutz und sicherer Umgang mit ChatGPT, Copilot und Co. Acht Level mit Übungen, Abschluss-Check und druckbarem Zertifikat.",
     "kategorie": "Compliance",
