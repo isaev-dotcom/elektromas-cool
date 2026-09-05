@@ -20,6 +20,16 @@
     "dauer": "ca. 40 Min."
   },
   {
+    "id": "fluke-1664-messung",
+    "datei": "fluke-1664-messung.html",
+    "titel": "Messen mit dem Fluke 1664 FC",
+    "beschreibung": "Prüfung der Schutzmaßnahmen nach DIN VDE 0100-600 und 0105-100: Niederohmmessung, Isolationswiderstand, Netzformen, Schleifenimpedanz, RCD-Prüfung, Drehfeld und Dokumentation. Acht Level mit Abschluss-Check, Merkblatt und Zertifikat für die Personalakte.",
+    "kategorie": "Messtechnik",
+    "typ": "Interaktiv",
+    "datum": "2026-09-05",
+    "dauer": "ca. 40 Min."
+  },
+  {
     "id": "ki-verordnung-2025",
     "datei": "ki-verordnung-2025.html",
     "titel": "KI-Verordnung 2025 – Sicher arbeiten mit KI",
