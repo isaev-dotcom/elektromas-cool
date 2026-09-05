@@ -10,6 +10,16 @@
     "dauer": "ca. 40 Min."
   },
   {
+    "id": "sicherheitsunterweisung-ru",
+    "datei": "sicherheitsunterweisung-ru.html",
+    "titel": "Инструктаж по технике безопасности (Sicherheitsunterweisung, Russisch)",
+    "beschreibung": "Русская версия ежегодного инструктажа по § 12 ArbSchG: опасности электрического тока, пять правил безопасности, проверки, стройплощадка и падение с высоты, шум и опасные вещества, СИЗ и крепление груза. Семь уровней с итоговым тестом и двуязычным свидетельством для личного дела.",
+    "kategorie": "Arbeitssicherheit",
+    "typ": "Interaktiv",
+    "datum": "2026-09-05",
+    "dauer": "ca. 40 Min."
+  },
+  {
     "id": "ki-verordnung-2025",
     "datei": "ki-verordnung-2025.html",
     "titel": "KI-Verordnung 2025 – Sicher arbeiten mit KI",
