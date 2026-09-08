@@ -73,7 +73,6 @@ function datum_lang(?string $iso): string
     </div>
     <div class="page__konto">
       <span class="leise"><?= e($benutzer['name'] !== '' ? $benutzer['name'] : $benutzer['email']) ?></span>
-      <a href="/Projekte/">Projekte</a>
       <?php if ($benutzer['rolle'] === 'admin'): ?>
         <a href="/admin/">Verwaltung</a>
       <?php endif; ?>

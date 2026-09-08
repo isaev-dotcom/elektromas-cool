@@ -151,6 +151,12 @@ AUSSCHLUSS=(
   "Schulungen/ANLEITUNG.md"
   "Projekte/ANLEITUNG.md"
   "TRIZ/ANLEITUNG.md"
+  # Projekt-Dashboard vorerst zurückgehalten. Die Tabellen in der Datenbank
+  # bleiben bestehen; zum Freischalten diese beiden Zeilen entfernen und in
+  # privat/lib/view.php sowie Schulungen/index.php den Menüpunkt wieder
+  # eintragen.
+  "Projekte"
+  "Projekte/ANLEITUNG.md"
   # Ersteinrichtung ist erledigt. Die Datei bleibt im Projekt, falls je alle
   # Administrator-Zugänge verlorengehen - dann einmalig von Hand hochladen,
   # benutzen, wieder löschen. Sie verweigert sich ohnehin, solange Konten
