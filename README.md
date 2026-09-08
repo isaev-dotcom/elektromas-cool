@@ -17,13 +17,23 @@ einrichten.php        einmalige Ersteinrichtung, danach löschen
 konto/                Anmeldung, Passwort vergessen, Einladung annehmen
 admin/                Benutzerverwaltung und Protokoll
 Schulungen/           geschützte Übersicht (index.php) und Auslieferung (datei.php)
+Projekte/             Projekt-Dashboard: Soll/Ist je Projekt, Wochenmeldung,
+                      KWP-Import – siehe Projekte/ANLEITUNG.md
+TRIZ/                 Business TRIZ Portal: Wissensdatenbank, Nachrichten,
+                      Videothek, KI-Assistent – siehe TRIZ/ANLEITUNG.md
 
 privat/               NICHT im Web-Verzeichnis, eine Ebene darüber
   config.php            Zugangsdaten (nicht im Repository)
-  schema.sql            Datenbankstruktur
+  schema.sql            Datenbankstruktur Benutzerverwaltung
+  schema_projekte.sql   Datenbankstruktur Projekt-Dashboard
+  schema_triz.sql       Datenbankstruktur TRIZ-Portal
+  projekte_start.sql    Startdaten für das Dashboard aus KWP (optional)
+  triz_start.sql        Kategorien, Quellen und Wissensbibliothek des Portals
   aufraeumen.php        täglicher Cronjob, löscht alte Daten
+  triz_sammeln.php      täglicher Cronjob, sammelt Nachrichten und Videos
   lib/                  Programmbibliothek
   inhalte/              die Schulungsdateien und ihr Katalog
+  triz_inhalte/         die Dokumente des TRIZ-Portals (entstehen auf dem Server)
   sessions/             Sitzungsdaten
 ```
 
@@ -82,9 +92,23 @@ Stand der Dinge, falls jemand es erneut versucht:
   nicht befüllt. Zwei Repositories mit ineinanderliegenden Zielpfaden auf
   derselben Domain vertragen sich offenbar nicht.
 
+## Projekt-Dashboard
+
+`/Projekte/` ersetzt die Excel-Datei „Projekt-KPI-Dashboard_elektromas.xlsx“:
+Projektleiter melden wöchentlich Iststunden, Fertigstellungsgrad, Termin- und
+Materialstatus, Mängel und Nachträge; das Dashboard rechnet Soll, Abweichung
+und Ampeln. Stammdaten kommen per Import aus KWP (Zwischenablage, CSV, XLSX).
+Einrichtung und Bedienung: [Projekte/ANLEITUNG.md](Projekte/ANLEITUNG.md).
+Datenbank: `privat/schema_projekte.sql` nach `schema.sql` einspielen.
+
+Lokal testen ohne MySQL: Es gibt kein Docker auf diesem Rechner, aber PHP 8.4
+(winget). Ein SQLite-Ersatz für `db()` genügt, um alle Seiten durchzuspielen –
+die Skripte dazu liegen nicht im Repository, der Weg ist im Speicher der
+Claude-Sitzung dokumentiert.
+
 ## Benutzerverwaltung
 
-Der Schulungsbereich ist passwortgeschützt. Zugänge gibt es nur auf Einladung,
+Der Schulungs- und der Projektbereich sind passwortgeschützt. Zugänge gibt es nur auf Einladung,
 eine öffentliche Registrierung existiert nicht.
 
 **Einrichtung: siehe [privat/EINRICHTUNG.md](privat/EINRICHTUNG.md).** Ohne
@@ -94,8 +118,33 @@ Technik: PHP 8.4, MySQL, Passwörter als Argon2id-Hash. Node.js scheidet aus –
 auf diesem Shared-Hosting gibt es keinen dauerhaften Prozess, PHP-FPM ist die
 einzige Ausführungsumgebung.
 
+## Business TRIZ Portal
+
+`/triz` ist die interne Wissens- und Innovationsplattform für Business TRIZ:
+täglich gesammelte Nachrichten aus deutsch-, russisch- und englischsprachigen
+Quellen, eine Videothek, die interne Dokumentenablage, ein KI-Assistent und
+die TRIZ-Wissensbibliothek (40 Prinzipien, 39 Parameter, Entwicklungsgesetze,
+Business-Methoden – zweisprachig). Oberfläche Deutsch/Russisch umschaltbar,
+Hell- und Dunkelmodus.
+
+Der Zugang ist vom Schulungsbereich **getrennt**: eigene Benutzertabelle,
+eigene Einladung, eigenes Passwort. Wer dort ein Konto hat, braucht hier
+trotzdem eine eigene Einladung.
+
+Einrichtung, Betrieb und die offenen Punkte (YouTube-Kanäle, Widerspruchsmatrix,
+Datenschutzerklärung): [TRIZ/ANLEITUNG.md](TRIZ/ANLEITUNG.md).
+Datenbank: `privat/schema_triz.sql`, danach `privat/triz_start.sql`.
+
 ## Offene Punkte
 
+- **TRIZ-Portal:** Die Datenschutzerklärung deckt bisher nur den
+  Schulungsbereich ab. Bevor das Portal für Mitarbeitende freigegeben wird,
+  muss ein Abschnitt dazu hinein – vor allem zum KI-Assistenten, der
+  Fragetexte und Dokumentauszüge an einen externen Dienst überträgt. Was genau
+  fehlt, steht in [TRIZ/ANLEITUNG.md](TRIZ/ANLEITUNG.md), Abschnitt 6.
+- **TRIZ-Portal:** YouTube-Kanäle und die Widerspruchsmatrix sind bewusst
+  nicht vorbelegt und werden in der Verwaltung eingetragen – Begründung
+  ebenfalls in der Anleitung.
 - Impressum und Datenschutzerklärung fachlich prüfen lassen. Insbesondere:
   Ist `DE 304877773` die USt-IdNr. (davon geht das Impressum aus) oder die
   Steuernummer? Und gibt es einen Datenschutzbeauftragten, der genannt werden

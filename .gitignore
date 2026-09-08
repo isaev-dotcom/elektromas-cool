@@ -22,3 +22,11 @@ privat/config.php
 # Laufzeitdaten
 privat/sessions/*
 !privat/sessions/.gitkeep
+
+# Hochgeladene Dokumente und zwischengespeicherte Vorschaubilder des
+# TRIZ-Portals - Nutzdaten, kein Programmcode.
+privat/triz_inhalte/*
+!privat/triz_inhalte/.gitkeep
+!privat/triz_inhalte/thumbs/
+privat/triz_inhalte/thumbs/*
+!privat/triz_inhalte/thumbs/.gitkeep

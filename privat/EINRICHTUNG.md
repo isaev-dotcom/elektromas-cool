@@ -17,6 +17,16 @@ Im Panel **phpMyAdmin** öffnen → die neue Datenbank auswählen → Reiter **S
 Es entstehen fünf Tabellen: `benutzer`, `einladungen`, `passwort_resets`,
 `anmeldeversuche`, `protokoll`.
 
+Für das Projekt-Dashboard anschließend genauso `privat/schema_projekte.sql`
+einspielen (Tabellen `projektleiter`, `projekte`, `projekt_status`,
+`projekt_einstellungen`), optional danach `privat/projekte_start.sql` mit den
+Projekten aus KWP. Beide Dateien lassen sich gefahrlos mehrfach ausführen.
+
+Für das Business TRIZ Portal ebenso `privat/schema_triz.sql` (14 Tabellen mit
+`triz_`-Präfix) und danach `privat/triz_start.sql` – Kategorien, Quellen und
+die Wissensbibliothek. Auch diese beiden vertragen mehrfaches Ausführen.
+Einrichtung und Betrieb des Portals stehen in `TRIZ/ANLEITUNG.md`.
+
 ## 3. Konfiguration ausfüllen
 
 Lokal im Projektordner:
@@ -88,7 +98,21 @@ Panel → **CRONJOBS** → täglich:
 
 Löscht abgelaufene Token, Protokolleinträge nach 90 Tagen und Anmeldeversuche
 nach 7 Tagen. Ohne diesen Lauf wächst das Protokoll unbegrenzt, was der
-Datenminimierung nach Art. 5 Abs. 1 lit. e DSGVO widerspricht.
+Datenminimierung nach Art. 5 Abs. 1 lit. e DSGVO widerspricht. Die Tabellen
+des TRIZ-Portals räumt derselbe Lauf mit auf, sobald sie existieren – der
+Cronjob muss dafür nicht geändert werden.
+
+## 7. Sammel-Job für das TRIZ-Portal (nur mit Portal)
+
+Panel → **CRONJOBS** → täglich, etwa 5:00 Uhr:
+
+```
+/usr/bin/php /var/www/vhosts/h283886.host298.alfahosting-server.de/privat/triz_sammeln.php
+```
+
+Holt Nachrichten und Videos aus den eingetragenen Quellen. Die Bilanz des
+Laufs kommt als Cron-Mail; Quellen, die nicht mehr antworten, stehen darin
+namentlich.
 
 ---
 

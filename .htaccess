@@ -11,6 +11,15 @@ DirectoryIndex index.php index.html
 
   RewriteCond %{REQUEST_URI} !^/Schulungen(/|$)
   RewriteRule ^schulung(en)?/?$ /Schulungen/ [NC,R=301,L]
+
+  # Dasselbe für das Projekt-Dashboard unter /Projekte/
+  RewriteCond %{REQUEST_URI} !^/Projekte(/|$)
+  RewriteRule ^(projekte?|dashboard)/?$ /Projekte/ [NC,R=301,L]
+
+  # Und für das Business TRIZ Portal unter /TRIZ/. Ausgeschrieben wird die
+  # Adresse als elektromas.cool/triz - der Verzeichnisname ist aber groß.
+  RewriteCond %{REQUEST_URI} !^/TRIZ(/|$)
+  RewriteRule ^triz/?$ /TRIZ/ [NC,R=301,L]
 </IfModule>
 
 # Konfigurations- und Passwortdateien nie ausliefern

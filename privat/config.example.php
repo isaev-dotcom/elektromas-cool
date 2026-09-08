@@ -59,6 +59,47 @@ return [
         'mindest_passwortlaenge' => 12,
     ],
 
+    // --- Business TRIZ Portal ----------------------------------------------
+    //
+    // Der gesamte Abschnitt ist freiwillig. Fehlt er, laufen alle Bereiche
+    // des Portals mit den hier angegebenen Vorgabewerten - nur der
+    // KI-Assistent bleibt ohne Schlüssel abgeschaltet.
+    'triz' => [
+
+        // Schlüssel für den KI-Assistenten (Anthropic, console.anthropic.com).
+        // Ohne ihn zeigt der Bereich einen Hinweis statt einer Antwort.
+        'ki_api_schluessel' => '',
+        'ki_timeout_sekunden' => 120,
+
+        // Fragen und Antworten sind personenbezogene Daten. aufraeumen.php
+        // löscht den Verlauf nach dieser Frist.
+        'ki_verlauf_tage' => 30,
+
+        // Optional: Ohne diesen Schlüssel bleibt die Laufzeit der Videos
+        // leer, weil der öffentliche YouTube-Feed sie nicht mitliefert.
+        // Alles andere - Titel, Kanal, Datum, Vorschaubild - kommt auch
+        // ohne ihn.
+        'youtube_api_schluessel' => '',
+
+        // Sammlung
+        'abruf_timeout_sekunden'    => 20,   // je Quelle
+        'beitrag_hoechstalter_tage' => 400,  // ältere Feed-Einträge übergehen
+
+        // Wissensdatenbank
+        'upload_max_mb' => 64,
+
+        // Optional: Pfad zu pdftotext. Ist er gesetzt, wandert der Text aus
+        // hochgeladenen PDF-Dateien in die Volltextsuche und steht dem
+        // KI-Assistenten zur Verfügung. Ohne ihn tragen Titel, Beschreibung
+        // und Schlagwörter die Suche.
+        //   which pdftotext
+        'pdftotext_pfad' => '',
+
+        // Sitzung im Portal - unabhängig von der des Schulungsbereichs.
+        'sitzung_leerlauf_minuten' => 120,
+        'sitzung_maximal_stunden'  => 12,
+    ],
+
     // --- Datenschutz -------------------------------------------------------
     'aufbewahrung' => [
         // Nach dieser Frist löscht aufraeumen.php Protokolleinträge und alte

@@ -149,6 +149,8 @@ AUSSCHLUSS=(
   # Interne Anleitung - beschreibt Serverpfade und den Passwortschutz und
   # gehört daher nicht ins Web.
   "Schulungen/ANLEITUNG.md"
+  "Projekte/ANLEITUNG.md"
+  "TRIZ/ANLEITUNG.md"
   # Ersteinrichtung ist erledigt. Die Datei bleibt im Projekt, falls je alle
   # Administrator-Zugänge verlorengehen - dann einmalig von Hand hochladen,
   # benutzen, wieder löschen. Sie verweigert sich ohnehin, solange Konten
@@ -346,8 +348,15 @@ privat_hochladen() {
 
   # Sitzungsdateien sind Laufzeitdaten und bleiben lokal; das Verzeichnis
   # selbst muss auf dem Server aber existieren.
+  #
+  # triz_inhalte/ bleibt ebenfalls draußen: Dort liegen die im Portal
+  # hochgeladenen Dokumente und die zwischengespeicherten Vorschaubilder.
+  # Sie entstehen auf dem Server und würden bei jedem Deployment erneut
+  # übertragen - über curl heißt das jedes Mal alles, auch die Videos.
   local liste
-  liste=$(find privat -type f ! -path 'privat/sessions/*' | sort)
+  liste=$(find privat -type f \
+            ! -path 'privat/sessions/*' \
+            ! -path 'privat/triz_inhalte/*' | sort)
 
   while IFS= read -r pfad; do
     [ -n "$pfad" ] || continue
@@ -370,12 +379,16 @@ privat_hochladen() {
     fi
   done <<< "$liste"
 
-  # sessions/ anlegen, indem eine Platzhalterdatei hineingelegt wird.
+  # Verzeichnisse für Laufzeitdaten anlegen, indem je eine Platzhalterdatei
+  # hineingelegt wird. FTP kennt kein "leeres Verzeichnis übertragen", und
+  # --ftp-create-dirs legt den Pfad zur Datei mit an.
   if [ $DRY_RUN -eq 0 ]; then
-    printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
-      | curl -sS --ftp-create-dirs "${CURL_SSL[@]}" -K - \
-             -T /dev/null "ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_PRIVAT/sessions/.platzhalter" \
-        >/dev/null 2>&1 || true
+    for ordner in sessions triz_inhalte triz_inhalte/thumbs; do
+      printf 'user = %s:%s\n' "$DEPLOY_USER" "$DEPLOY_PASS" \
+        | curl -sS --ftp-create-dirs "${CURL_SSL[@]}" -K - \
+               -T /dev/null "ftp://$DEPLOY_HOST:$DEPLOY_PORT$REMOTE_PRIVAT/$ordner/.platzhalter" \
+          >/dev/null 2>&1 || true
+    done
     echo
     echo "  $anzahl Datei(en) übertragen, $fehler Fehler."
     [ $fehler -gt 0 ] && return 1

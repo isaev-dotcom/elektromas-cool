@@ -39,6 +39,8 @@ function seite_fuss(): void
     <?php if ($b !== null): ?>
       <p>
         Angemeldet als <strong><?= e($b['email']) ?></strong>
+        &middot; <a href="/Schulungen/">Schulungen</a>
+        &middot; <a href="/Projekte/">Projekte</a>
         <?php if ($b['rolle'] === 'admin'): ?>
           &middot; <a href="/admin/">Benutzerverwaltung</a>
         <?php endif; ?>

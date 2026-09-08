@@ -1,0 +1,585 @@
+/* ===========================================================================
+   Business TRIZ Portal – Gestaltung
+
+   Eigenständiges Stylesheet, unabhängig von /style.css: Das Portal ist eine
+   Anwendung mit Seitenleiste, Filtern und Tabellen, die Visitenkarte eine
+   Broschüre. Beides in ein Stylesheet zu zwingen hieße, jede Änderung an der
+   einen Seite gegen die andere abzuwägen.
+
+   Keine externen Schriften, keine externen Bilder, kein Tracking – dieselbe
+   Zusage wie auf dem Rest der Seite, und die Grundlage dafür, dass die
+   Datenschutzerklärung so knapp bleiben kann.
+   =========================================================================== */
+
+/* --- Farben ---------------------------------------------------------------
+   Zwei Sätze: hell als Vorgabe, dunkel über prefers-color-scheme. Die
+   ausdrückliche Wahl im Portal setzt data-thema am <html> und schlägt beides.
+   Dadurch steht die richtige Farbe schon im ausgelieferten HTML – kein
+   Aufblitzen der falschen Fassung beim Laden. */
+
+:root {
+  --blau:        #003d90;
+  --blau-hell:   #1a56a8;
+  --orange:      #f69f00;
+
+  --grund:       #eef2f7;
+  --flaeche:     #ffffff;
+  --flaeche-2:   #f6f8fb;
+  --rand:        #dde4ed;
+  --text:        #17233a;
+  --leise:       #66748c;
+  --akzent:      #003d90;
+  --akzent-text: #ffffff;
+  --markierung:  #ffe9b0;
+  --ok:          #1c7a4a;
+  --fehler:      #b3261e;
+  --schatten:    0 1px 2px rgba(16, 30, 54, .06), 0 6px 20px rgba(16, 30, 54, .06);
+  --rund:        14px;
+  --rund-klein:  8px;
+  --schrift: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-thema="hell"]) {
+    --grund:       #0e1524;
+    --flaeche:     #162033;
+    --flaeche-2:   #1c2840;
+    --rand:        #27334c;
+    --text:        #e6ecf7;
+    --leise:       #9aa8c2;
+    --akzent:      #5b9bff;
+    --akzent-text: #06152c;
+    --markierung:  #5a4a12;
+    --ok:          #4ade9a;
+    --fehler:      #ff8a80;
+    --schatten:    0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+
+:root[data-thema="dunkel"] {
+  --grund:       #0e1524;
+  --flaeche:     #162033;
+  --flaeche-2:   #1c2840;
+  --rand:        #27334c;
+  --text:        #e6ecf7;
+  --leise:       #9aa8c2;
+  --akzent:      #5b9bff;
+  --akzent-text: #06152c;
+  --markierung:  #5a4a12;
+  --ok:          #4ade9a;
+  --fehler:      #ff8a80;
+  --schatten:    0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+body.triz {
+  min-height: 100vh;
+  font-family: var(--schrift);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--grund);
+  -webkit-text-size-adjust: 100%;
+}
+
+img { max-width: 100%; height: auto; }
+a { color: var(--akzent); }
+
+/* Nur für Screenreader – etwa Beschriftungen, die optisch aus dem
+   Zusammenhang hervorgehen, für die Vorlesefunktion aber fehlen würden. */
+.nur-vorlesen {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.sprungmarke {
+  position: absolute; left: -9999px; top: 0; z-index: 100;
+  padding: 10px 16px; background: var(--akzent); color: var(--akzent-text);
+}
+.sprungmarke:focus { left: 0; }
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+}
+
+/* ===========================================================================
+   Kopfzeile
+   =========================================================================== */
+
+.kopf {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 10px 20px;
+  background: var(--flaeche);
+  border-bottom: 1px solid var(--rand);
+}
+
+.kopf__marke { display: flex; align-items: center; gap: 10px; }
+.kopf__marke a { display: flex; align-items: center; gap: 10px;
+                 text-decoration: none; color: inherit; }
+.kopf__marke img { width: 116px; }
+
+/* Das Logo ist dunkelblau auf durchsichtigem Grund und verschwindet im
+   Dunkelmodus fast im Hintergrund. Statt es einzufärben - dabei ginge das
+   Orange verloren - bekommt es eine helle Platte, wie auf der Startseite. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-thema="hell"]) .kopf__marke img,
+  :root:not([data-thema="hell"]) .karte-mitte__logo {
+    background: #fff; padding: 4px 8px; border-radius: 6px;
+  }
+}
+:root[data-thema="dunkel"] .kopf__marke img,
+:root[data-thema="dunkel"] .karte-mitte__logo {
+  background: #fff; padding: 4px 8px; border-radius: 6px;
+}
+.kopf__marke span { font-weight: 600; font-size: .98rem; letter-spacing: .01em; }
+
+/* Die drei Balken werden gezeichnet statt als Zeichen gesetzt: Nicht jede
+   Systemschrift kennt U+2630, und ein fehlendes Zeichen hinterlässt einen
+   leeren Knopf, den niemand als Menü erkennt. */
+.kopf__menue {
+  display: none;
+  padding: 9px 10px; cursor: pointer; line-height: 0;
+  color: var(--text); background: var(--flaeche-2);
+  border: 1px solid var(--rand); border-radius: var(--rund-klein);
+}
+.kopf__menue span {
+  position: relative; display: block; width: 20px; height: 14px;
+  border-top: 2px solid currentColor; border-bottom: 2px solid currentColor;
+}
+.kopf__menue span::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 4px;
+  border-top: 2px solid currentColor;
+}
+
+.kopf__suche { flex: 1 1 260px; display: flex; gap: 8px; min-width: 0; }
+.kopf__suche input {
+  flex: 1; min-width: 0;
+  padding: 9px 14px; font: inherit; color: var(--text);
+  background: var(--flaeche-2);
+  border: 1px solid var(--rand); border-radius: 999px;
+}
+.kopf__suche button {
+  padding: 9px 18px; font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--akzent-text); background: var(--akzent);
+  border: 0; border-radius: 999px;
+}
+
+.kopf__rechts { display: flex; align-items: center; gap: 14px; }
+.kopf__person { font-size: .88rem; color: var(--leise); }
+
+/* --- Sprach- und Designumschalter --- */
+
+.schalter { display: flex; gap: 8px; }
+.schalter__gruppe {
+  display: flex; overflow: hidden;
+  background: var(--flaeche-2);
+  border: 1px solid var(--rand); border-radius: 999px;
+}
+.schalter__gruppe a {
+  padding: 5px 11px; font-size: .8rem; font-weight: 600;
+  text-decoration: none; color: var(--leise);
+}
+.schalter__gruppe a:hover { color: var(--text); }
+.schalter__gruppe a.ist-an { color: var(--akzent-text); background: var(--akzent); }
+
+/* ===========================================================================
+   Rumpf: Seitenleiste und Inhalt
+   =========================================================================== */
+
+.rumpf {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.navi ul { list-style: none; position: sticky; top: 84px; }
+.navi li + li { margin-top: 3px; }
+.navi__trenner { margin-top: 14px !important; padding-top: 14px;
+                 border-top: 1px solid var(--rand); }
+.navi a {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 13px; border-radius: var(--rund-klein);
+  font-size: .94rem; font-weight: 500;
+  text-decoration: none; color: var(--text);
+}
+.navi a:hover { background: var(--flaeche); }
+.navi a.ist-an { color: var(--akzent-text); background: var(--akzent); }
+.navi__zeichen {
+  display: inline-flex; justify-content: center;
+  width: 1.3em; font-size: .95em; opacity: .8;
+}
+
+.inhalt { min-width: 0; }
+
+/* ===========================================================================
+   Überschriften, Karten, Raster
+   =========================================================================== */
+
+.seitenkopf { margin-bottom: 22px; }
+.seitenkopf h1 { font-size: clamp(1.4rem, 3vw, 1.85rem); line-height: 1.25; }
+.seitenkopf p { margin-top: 6px; color: var(--leise); max-width: 68ch; }
+
+h2 { font-size: 1.15rem; margin-bottom: 12px; }
+h3 { font-size: 1rem; }
+
+.karte {
+  padding: 18px 20px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--rund);
+  box-shadow: var(--schatten);
+}
+
+.raster { display: grid; gap: 16px; }
+.raster--2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.raster--3 { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+
+.abschnitt { margin-bottom: 32px; }
+.abschnitt__kopf {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.abschnitt__kopf a { font-size: .88rem; }
+
+.leise { color: var(--leise); font-size: .86rem; }
+
+/* --- Marken und Kennzeichen --- */
+
+.marke {
+  display: inline-block; padding: 2px 9px;
+  font-size: .74rem; font-weight: 600; letter-spacing: .02em;
+  color: var(--leise); background: var(--flaeche-2);
+  border: 1px solid var(--rand); border-radius: 999px;
+}
+.marke--sprache { font-variant: small-caps; }
+.marke--akzent { color: var(--akzent); border-color: currentColor; }
+
+mark { background: var(--markierung); color: inherit; border-radius: 3px; padding: 0 2px; }
+
+/* ===========================================================================
+   Listeneinträge (Beiträge, Dokumente, Treffer)
+   =========================================================================== */
+
+.eintraege { list-style: none; display: grid; gap: 12px; }
+
+.eintrag {
+  position: relative;
+  display: grid; gap: 6px;
+  padding: 16px 52px 16px 18px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--rund);
+  transition: border-color .15s, transform .15s;
+}
+.eintrag:hover { border-color: var(--akzent); }
+.eintrag__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+                 font-size: .82rem; color: var(--leise); }
+.eintrag__titel { font-size: 1.02rem; line-height: 1.35; }
+.eintrag__titel a { color: var(--text); text-decoration: none; }
+.eintrag__titel a:hover { color: var(--akzent); text-decoration: underline; }
+.eintrag__text { color: var(--leise); font-size: .92rem; }
+.eintrag__fuss { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+                 margin-top: 4px; font-size: .85rem; }
+
+/* Der Favoritenknopf sitzt in der rechten oberen Ecke jedes Eintrags. */
+.favknopf { position: absolute; top: 12px; right: 12px; }
+.favknopf button {
+  width: 34px; height: 34px; font-size: 1.05rem; line-height: 1; cursor: pointer;
+  color: var(--leise); background: transparent;
+  border: 1px solid transparent; border-radius: 50%;
+}
+.favknopf button:hover { color: var(--orange); background: var(--flaeche-2);
+                         border-color: var(--rand); }
+.favknopf button.ist-an { color: var(--orange); }
+
+/* ===========================================================================
+   Videos
+   =========================================================================== */
+
+.videos { list-style: none; display: grid; gap: 18px;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.video {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: var(--rund);
+}
+.video__bild { position: relative; display: block; aspect-ratio: 16 / 9;
+               background: var(--flaeche-2); }
+.video__bild img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.video__dauer {
+  position: absolute; right: 8px; bottom: 8px;
+  padding: 2px 7px; font-size: .78rem; font-variant-numeric: tabular-nums;
+  color: #fff; background: rgba(0, 0, 0, .78); border-radius: 5px;
+}
+.video__text { display: grid; gap: 6px; padding: 14px 16px 16px; }
+.video__titel { font-size: .97rem; line-height: 1.35; }
+.video__titel a { color: var(--text); text-decoration: none; }
+.video__titel a:hover { color: var(--akzent); }
+.video .favknopf { top: 8px; right: 8px; }
+.video .favknopf button { background: rgba(0, 0, 0, .55); color: #fff; }
+
+/* ===========================================================================
+   Formulare, Knöpfe, Filter
+   =========================================================================== */
+
+label { display: block; margin-bottom: 5px; font-size: .88rem; font-weight: 600; }
+
+input[type="text"], input[type="email"], input[type="password"], input[type="search"],
+input[type="url"], input[type="file"], input[type="date"], select, textarea {
+  width: 100%; padding: 10px 13px;
+  font: inherit; color: var(--text);
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: var(--rund-klein);
+}
+textarea { resize: vertical; min-height: 84px; }
+input + label, select + label, textarea + label { margin-top: 14px; }
+
+.knopf {
+  display: inline-block; padding: 11px 22px;
+  font: inherit; font-weight: 600; text-align: center; text-decoration: none;
+  cursor: pointer; color: var(--text); background: var(--flaeche-2);
+  border: 1px solid var(--rand); border-radius: var(--rund-klein);
+}
+.knopf:hover { border-color: var(--akzent); }
+.knopf--primaer { color: var(--akzent-text); background: var(--akzent);
+                  border-color: var(--akzent); }
+.knopf--klein { padding: 7px 14px; font-size: .87rem; }
+.knopf--warnung { color: var(--fehler); border-color: var(--fehler); }
+
+.formular { display: grid; gap: 0; max-width: 560px; }
+.formular button { margin-top: 20px; justify-self: start; }
+
+/* --- Filterleiste --- */
+
+.filter {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+  margin-bottom: 20px; padding: 14px 16px;
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: var(--rund);
+}
+.filter label { margin-bottom: 3px; font-size: .78rem; color: var(--leise); }
+.filter select, .filter input { width: auto; min-width: 150px; padding: 7px 11px;
+                                font-size: .9rem; }
+.filter__feld { display: grid; }
+.filter button { padding: 8px 16px; font-size: .9rem; }
+
+/* --- Reiter --- */
+
+.reiter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px;
+          padding-bottom: 2px; }
+.reiter a {
+  padding: 8px 15px; font-size: .9rem; font-weight: 500;
+  text-decoration: none; color: var(--text);
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: 999px;
+}
+.reiter a.ist-an { color: var(--akzent-text); background: var(--akzent);
+                   border-color: var(--akzent); }
+
+/* ===========================================================================
+   Meldungen
+   =========================================================================== */
+
+.meldung {
+  padding: 12px 16px; margin-bottom: 18px;
+  border: 1px solid var(--rand); border-left-width: 4px;
+  border-radius: var(--rund-klein);
+  background: var(--flaeche);
+  font-size: .93rem;
+}
+.meldung--fehler  { border-left-color: var(--fehler); }
+.meldung--ok      { border-left-color: var(--ok); }
+.meldung--hinweis { border-left-color: var(--orange); }
+
+/* ===========================================================================
+   Tabellen (Verwaltung, Matrix)
+   =========================================================================== */
+
+.tabelle-huelle { overflow-x: auto; border: 1px solid var(--rand);
+                  border-radius: var(--rund); background: var(--flaeche); }
+table { width: 100%; border-collapse: collapse; font-size: .91rem; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--rand);
+         vertical-align: top; }
+th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em;
+     color: var(--leise); background: var(--flaeche-2); }
+tbody tr:last-child td { border-bottom: 0; }
+td form { display: inline; }
+
+/* ===========================================================================
+   Kennzahlen
+   =========================================================================== */
+
+.zahlen { display: grid; gap: 14px;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.zahl {
+  padding: 16px 18px; background: var(--flaeche);
+  border: 1px solid var(--rand); border-radius: var(--rund);
+}
+.zahl__wert { font-size: 1.9rem; font-weight: 700; line-height: 1.1;
+              font-variant-numeric: tabular-nums; }
+.zahl__text { margin-top: 3px; font-size: .85rem; color: var(--leise); }
+
+/* ===========================================================================
+   Bibliothek
+   =========================================================================== */
+
+.bib { list-style: none; display: grid; gap: 14px; }
+.bib__eintrag { position: relative; padding: 18px 52px 18px 20px;
+                background: var(--flaeche); border: 1px solid var(--rand);
+                border-radius: var(--rund); scroll-margin-top: 90px; }
+.bib__nummer { display: inline-flex; align-items: center; justify-content: center;
+               min-width: 2.1em; height: 2.1em; margin-right: 10px;
+               font-size: .85rem; font-weight: 700;
+               color: var(--akzent-text); background: var(--akzent);
+               border-radius: 50%; }
+.bib__titel { display: flex; align-items: center; font-size: 1.05rem; }
+.bib__text { margin-top: 10px; }
+.bib__beispiel { margin-top: 12px; padding: 12px 14px; font-size: .92rem;
+                 background: var(--flaeche-2); border-radius: var(--rund-klein);
+                 border-left: 3px solid var(--orange); }
+.bib__beispiel strong { display: block; margin-bottom: 3px; font-size: .8rem;
+                        text-transform: uppercase; letter-spacing: .04em;
+                        color: var(--leise); }
+
+/* ===========================================================================
+   KI-Assistent
+   =========================================================================== */
+
+.dialog { display: grid; gap: 14px; margin-bottom: 22px; }
+.rede { padding: 14px 18px; border-radius: var(--rund); max-width: 92%; }
+.rede--frage { justify-self: end; color: var(--akzent-text); background: var(--akzent); }
+.rede--antwort { justify-self: start; background: var(--flaeche);
+                 border: 1px solid var(--rand); }
+.rede p + p { margin-top: .7em; }
+.rede ul, .rede ol { margin: .6em 0 .6em 1.3em; }
+.rede li + li { margin-top: .3em; }
+.rede h3 { margin: .8em 0 .3em; font-size: 1rem; }
+.rede code { padding: 1px 5px; font-size: .9em; background: var(--flaeche-2);
+             border-radius: 4px; }
+
+.vorschlaege { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.vorschlaege button {
+  padding: 8px 14px; font: inherit; font-size: .86rem; text-align: left;
+  cursor: pointer; color: var(--text); background: var(--flaeche);
+  border: 1px dashed var(--rand); border-radius: 999px;
+}
+.vorschlaege button:hover { border-style: solid; border-color: var(--akzent); }
+
+/* ===========================================================================
+   Kommentare
+   =========================================================================== */
+
+.kommentare { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rand); }
+.kommentar { padding: 12px 0; border-bottom: 1px solid var(--rand); }
+.kommentar__kopf { display: flex; gap: 10px; align-items: baseline;
+                   margin-bottom: 4px; font-size: .9rem; }
+.kommentar__form { margin-top: 14px; }
+.kommentar__form button { margin-top: 8px; }
+
+/* ===========================================================================
+   Blättern und Fuß
+   =========================================================================== */
+
+.blaettern { display: flex; gap: 14px; align-items: center; justify-content: center;
+             margin-top: 26px; font-size: .92rem; }
+.blaettern a { display: inline-block; padding: 7px 15px; text-decoration: none;
+               background: var(--flaeche); border: 1px solid var(--rand);
+               border-radius: var(--rund-klein); }
+
+.fuss { padding: 22px 20px 30px; text-align: center; font-size: .85rem;
+        color: var(--leise); border-top: 1px solid var(--rand); }
+.fuss p + p { margin-top: 5px; }
+.fuss a { color: var(--leise); }
+
+/* ===========================================================================
+   Schmale Karte: Anmeldung, Einladung, Passwort
+   =========================================================================== */
+
+body.triz--schmal { display: grid; align-content: center; min-height: 100vh;
+                    padding: 24px 16px; }
+.karte-mitte {
+  width: 100%; max-width: 460px; margin: 0 auto;
+  padding: 30px 30px 22px;
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: var(--rund); box-shadow: var(--schatten);
+}
+.karte-mitte__kopf { text-align: center; margin-bottom: 20px; }
+.karte-mitte__logo { width: 168px; }
+.karte-mitte__marke { margin-top: 10px; font-size: .82rem; font-weight: 600;
+                      letter-spacing: .09em; text-transform: uppercase;
+                      color: var(--akzent); }
+.karte-mitte__kopf h1 { margin-top: 6px; font-size: 1.35rem; }
+.karte-mitte .schalter { justify-content: center; margin-bottom: 20px; }
+.karte-mitte .formular { max-width: none; }
+.karte-mitte button[type="submit"] { width: 100%; }
+.karte-mitte__lead { margin-bottom: 18px; font-size: .93rem; color: var(--leise); }
+.karte-mitte__zusatz { margin-top: 16px; text-align: center; font-size: .9rem; }
+.karte-mitte__zusatz--klein { font-size: .82rem; color: var(--leise); }
+.karte-mitte .fuss { margin-top: 20px; padding-bottom: 0; }
+
+.einmal-link { padding: 12px 14px; word-break: break-all; font-family: ui-monospace,
+               "Cascadia Mono", Consolas, monospace; font-size: .82rem;
+               background: var(--flaeche-2); border-radius: var(--rund-klein); }
+
+/* ===========================================================================
+   Schmale Bildschirme
+   =========================================================================== */
+
+@media (min-width: 861px) {
+  /* Auf großen Bildschirmen ist die Navigation dauerhaft sichtbar. Autorregeln
+     schlagen die Browser-Vorgabe, die ein popover-Element ausblendet. */
+  .navi { display: block; position: static; inset: auto; width: auto;
+          margin: 0; padding: 0; overflow: visible;
+          background: transparent; border: 0; }
+}
+
+@media (max-width: 860px) {
+  .rumpf { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 18px 16px 40px; }
+  .kopf__menue { display: block; }
+  .kopf__marke span { display: none; }
+  .kopf__person { display: none; }
+  .kopf { padding: 8px 14px; gap: 10px; }
+  .kopf__suche { order: 3; flex-basis: 100%; }
+
+  .navi:popover-open {
+    position: fixed; inset: 0 auto 0 0;
+    width: min(78vw, 290px); padding: 18px 14px; overflow-y: auto;
+    background: var(--flaeche); border: 0; border-right: 1px solid var(--rand);
+    color: var(--text);
+  }
+  .navi::backdrop { background: rgba(3, 10, 24, .5); }
+  .navi ul { position: static; }
+  .navi a { padding: 12px 14px; font-size: 1rem; }
+}
+
+@media (max-width: 560px) {
+  .eintrag { padding: 14px 46px 14px 15px; }
+  .videos { grid-template-columns: 1fr; }
+  .karte-mitte { padding: 24px 20px 18px; }
+  .zahl__wert { font-size: 1.6rem; }
+}
+
+/* ===========================================================================
+   Druck – etwa für eine Fallstudie aus der Bibliothek
+   =========================================================================== */
+
+@media print {
+  .kopf, .navi, .fuss, .favknopf, .filter, .blaettern, .kommentar__form { display: none; }
+  .rumpf { display: block; padding: 0; }
+  .eintrag, .karte, .bib__eintrag { border: 0; box-shadow: none; padding: 0 0 12px; }
+  body.triz { background: #fff; color: #000; }
+}
