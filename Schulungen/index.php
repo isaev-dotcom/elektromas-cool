@@ -35,6 +35,17 @@ if (is_file($katalog_datei)) {
 // Neueste zuerst.
 usort($schulungen, static fn($a, $b) => strcmp((string)($b['datum'] ?? ''), (string)($a['datum'] ?? '')));
 
+/*
+ * Zwei Gruppen: Pflichtschulungen schließen mit einem Zertifikat für die
+ * Personalakte ab, alles Übrige steht unter "Allgemeine Schulungen".
+ *
+ * Maßgeblich ist das Feld "pflicht" im Katalog, nicht ein Suchen nach dem
+ * Wort "Zertifikat" im Text - sonst entschiede eine Formulierung darüber,
+ * was verbindlich ist.
+ */
+$pflicht   = array_values(array_filter($schulungen, static fn($s) => !empty($s['pflicht'])));
+$allgemein = array_values(array_filter($schulungen, static fn($s) => empty($s['pflicht'])));
+
 function datum_lang(?string $iso): string
 {
     if (!$iso) {
@@ -47,6 +58,36 @@ function datum_lang(?string $iso): string
     $monate = [1 => 'Januar','Februar','März','April','Mai','Juni','Juli',
                'August','September','Oktober','November','Dezember'];
     return date('d.', $t) . ' ' . $monate[(int)date('n', $t)] . ' ' . date('Y', $t);
+}
+
+/** Gibt eine Schulungskachel aus. Einmal geschrieben, in beiden Gruppen genutzt. */
+function kachel(array $s): void
+{
+    $suchtext = mb_strtolower(
+        ($s['titel'] ?? '') . ' ' . ($s['beschreibung'] ?? '') . ' ' .
+        ($s['kategorie'] ?? '') . ' ' . ($s['typ'] ?? '')
+    );
+    ?>
+    <li data-suche="<?= e($suchtext) ?>">
+      <a class="kurs" href="/Schulungen/datei.php?s=<?= e(urlencode((string)$s['id'])) ?>">
+        <div class="kurs__meta">
+          <?php if (!empty($s['typ'])): ?>
+            <span class="tag tag--typ"><?= e($s['typ']) ?></span>
+          <?php endif; ?>
+          <?php if (!empty($s['kategorie'])): ?>
+            <span class="tag"><?= e($s['kategorie']) ?></span>
+          <?php endif; ?>
+        </div>
+        <h3><?= e($s['titel']) ?></h3>
+        <?php if (!empty($s['beschreibung'])): ?>
+          <p><?= e($s['beschreibung']) ?></p>
+        <?php endif; ?>
+        <div class="kurs__foot">
+          <?= e(trim(datum_lang($s['datum'] ?? null) . ' · ' . ($s['dauer'] ?? ''), ' ·')) ?>
+        </div>
+      </a>
+    </li>
+    <?php
 }
 ?><!DOCTYPE html>
 <html lang="de">
@@ -85,32 +126,37 @@ function datum_lang(?string $iso): string
     <input class="filter" id="filter" type="search" autocomplete="off"
            placeholder="Schulung suchen – Titel, Thema oder Kategorie …">
 
-    <ul class="kurse" id="kurse">
-      <?php foreach ($schulungen as $s): ?>
-        <li data-suche="<?= e(mb_strtolower(
-              ($s['titel'] ?? '') . ' ' . ($s['beschreibung'] ?? '') . ' ' .
-              ($s['kategorie'] ?? '') . ' ' . ($s['typ'] ?? '')
-            )) ?>">
-          <a class="kurs" href="/Schulungen/datei.php?s=<?= e(urlencode((string)$s['id'])) ?>">
-            <div class="kurs__meta">
-              <?php if (!empty($s['typ'])): ?>
-                <span class="tag tag--typ"><?= e($s['typ']) ?></span>
-              <?php endif; ?>
-              <?php if (!empty($s['kategorie'])): ?>
-                <span class="tag"><?= e($s['kategorie']) ?></span>
-              <?php endif; ?>
-            </div>
-            <h3><?= e($s['titel']) ?></h3>
-            <?php if (!empty($s['beschreibung'])): ?>
-              <p><?= e($s['beschreibung']) ?></p>
-            <?php endif; ?>
-            <div class="kurs__foot">
-              <?= e(trim(datum_lang($s['datum'] ?? null) . ' · ' . ($s['dauer'] ?? ''), ' ·')) ?>
-            </div>
-          </a>
-        </li>
-      <?php endforeach; ?>
-    </ul>
+    <?php if ($pflicht): ?>
+      <section class="gruppe" data-gruppe>
+        <h2 class="gruppe__titel">
+          Pflichtschulungen
+          <span class="gruppe__zahl"><?= count($pflicht) ?></span>
+        </h2>
+        <p class="gruppe__lead">
+          Verbindlich für alle Mitarbeitenden. Jede schließt mit einem
+          Zertifikat ab, das Sie ausdrucken und zur Ablage in der Personalakte
+          abgeben.
+        </p>
+        <ul class="kurse">
+          <?php foreach ($pflicht as $s) { kachel($s); } ?>
+        </ul>
+      </section>
+    <?php endif; ?>
+
+    <?php if ($allgemein): ?>
+      <section class="gruppe" data-gruppe>
+        <h2 class="gruppe__titel">
+          Allgemeine Schulungen
+          <span class="gruppe__zahl"><?= count($allgemein) ?></span>
+        </h2>
+        <p class="gruppe__lead">
+          Hilfreich für die tägliche Arbeit, aber ohne Nachweispflicht.
+        </p>
+        <ul class="kurse">
+          <?php foreach ($allgemein as $s) { kachel($s); } ?>
+        </ul>
+      </section>
+    <?php endif; ?>
 
     <p class="hinweis" id="hinweis"<?= $schulungen ? ' hidden' : '' ?>>
       Aktuell sind keine Schulungen veröffentlicht.
@@ -125,25 +171,41 @@ function datum_lang(?string $iso): string
 </div>
 
 <script>
-/* Suche über die bereits gerenderte Liste - kein Nachladen nötig. */
+/* Suche über die bereits gerenderten Gruppen - kein Nachladen nötig. */
 (function () {
   var filter  = document.getElementById('filter');
-  var liste   = document.getElementById('kurse');
   var hinweis = document.getElementById('hinweis');
-  var punkte  = Array.prototype.slice.call(liste.querySelectorAll('li'));
+  var gruppen = Array.prototype.slice.call(document.querySelectorAll('[data-gruppe]'));
+
+  if (!filter || !gruppen.length) { return; }
 
   filter.addEventListener('input', function () {
     var q = filter.value.trim().toLowerCase();
-    var sichtbar = 0;
-    punkte.forEach(function (li) {
-      var treffer = q === '' || li.dataset.suche.indexOf(q) !== -1;
-      li.hidden = !treffer;
-      if (treffer) { sichtbar++; }
+    var gesamt = 0;
+
+    gruppen.forEach(function (gruppe) {
+      var punkte = Array.prototype.slice.call(gruppe.querySelectorAll('li[data-suche]'));
+      var sichtbar = 0;
+
+      punkte.forEach(function (li) {
+        var treffer = q === '' || li.dataset.suche.indexOf(q) !== -1;
+        li.hidden = !treffer;
+        if (treffer) { sichtbar++; }
+      });
+
+      // Eine Gruppe ohne Treffer ganz ausblenden - sonst stünde dort eine
+      // Überschrift über einer leeren Fläche.
+      gruppe.hidden = sichtbar === 0;
+
+      // Die Zahl neben der Überschrift zeigt, was gerade zu sehen ist.
+      var zahl = gruppe.querySelector('.gruppe__zahl');
+      if (zahl) { zahl.textContent = sichtbar; }
+
+      gesamt += sichtbar;
     });
-    hinweis.hidden = sichtbar > 0;
-    hinweis.textContent = punkte.length
-      ? 'Keine Schulung passt zu Ihrer Suche.'
-      : 'Aktuell sind keine Schulungen veröffentlicht.';
+
+    hinweis.hidden = gesamt > 0;
+    hinweis.textContent = 'Keine Schulung passt zu Ihrer Suche.';
   });
 })();
 </script>

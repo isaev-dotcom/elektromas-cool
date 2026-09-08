@@ -1,6 +1,7 @@
 [
   {
     "id": "sicherheitsunterweisung",
+    "pflicht": true,
     "datei": "sicherheitsunterweisung.html",
     "titel": "Sicherheitsunterweisung im Elektrohandwerk",
     "beschreibung": "Jährliche Unterweisung nach § 12 ArbSchG und § 4 DGUV Vorschrift 1: elektrische Gefahren, die 5 Sicherheitsregeln, Prüfpflichten, Baustelle und Absturz, Lärm und Gefahrstoffe, PSA und Ladungssicherung. Sieben Level mit Abschluss-Check und Zertifikat für die Personalakte.",
@@ -11,6 +12,7 @@
   },
   {
     "id": "sicherheitsunterweisung-ru",
+    "pflicht": true,
     "datei": "sicherheitsunterweisung-ru.html",
     "titel": "Инструктаж по технике безопасности (Sicherheitsunterweisung, Russisch)",
     "beschreibung": "Русская версия ежегодного инструктажа по § 12 ArbSchG: опасности электрического тока, пять правил безопасности, проверки, стройплощадка и падение с высоты, шум и опасные вещества, СИЗ и крепление груза. Семь уровней с итоговым тестом и двуязычным свидетельством для личного дела.",
@@ -21,6 +23,7 @@
   },
   {
     "id": "fluke-1664-messung",
+    "pflicht": true,
     "datei": "fluke-1664-messung.html",
     "titel": "Messen mit dem Fluke 1664 FC",
     "beschreibung": "Prüfung der Schutzmaßnahmen nach DIN VDE 0100-600 und 0105-100: Niederohmmessung, Isolationswiderstand, Netzformen, Schleifenimpedanz, RCD-Prüfung, Drehfeld und Dokumentation. Acht Level mit Abschluss-Check, Merkblatt und Zertifikat für die Personalakte.",
@@ -31,6 +34,7 @@
   },
   {
     "id": "ki-verordnung-2025",
+    "pflicht": true,
     "datei": "ki-verordnung-2025.html",
     "titel": "KI-Verordnung 2025 – Sicher arbeiten mit KI",
     "beschreibung": "Pflichtschulung zur KI-Kompetenz nach Art. 4 KI-VO: Risikoklassen, verbotene Praktiken, Datenschutz und sicherer Umgang mit ChatGPT, Copilot und Co. Acht Level mit Übungen, Abschluss-Check und druckbarem Zertifikat.",
@@ -41,6 +45,7 @@
   },
   {
     "id": "mobiler-monteur",
+    "pflicht": false,
     "datei": "mobiler-monteur.html",
     "titel": "Arbeiten mit dem Mobilen Monteur",
     "beschreibung": "Die verbindlichen Abläufe im Mobilen Monteur (KWP Klassik): Projekt abrufen, Leistungsverzeichnis, Tagesberichte, Aufmaße und Montageaufträge. Sechs Level in einfacher Sprache, mit Übungen und druckbarem Merkblatt.",
