@@ -14,6 +14,7 @@ $ich = admin_verlangen();
 $fehler = '';
 $ok_text = '';
 $manueller_link = '';
+$versand_fehler = false;
 
 if (ist_post()) {
     csrf_pruefen();
@@ -69,15 +70,17 @@ if (ist_post()) {
 
                 protokoll('einladung_erstellt', $email, $benutzer_id, 'durch ' . $ich['email']);
 
+                // Den Link immer einmalig anzeigen, auch nach erfolgreichem
+                // Versand: Eine angenommene Mail kann trotzdem im Spamordner
+                // landen. Später ist er nicht mehr abrufbar.
+                $manueller_link = $link;
                 if ($versandt) {
-                    $ok_text = 'Einladung verschickt an ' . $email . '.';
+                    $ok_text = 'Einladung verschickt an ' . $email . '. Kommt sie nicht an, '
+                             . 'geben Sie den folgenden Link persönlich weiter:';
                 } else {
-                    // Der Zugang existiert, nur die Mail ging nicht raus.
-                    // Den Link hier einmalig anzeigen, damit die Einladung
-                    // nicht verloren ist - er ist danach nicht mehr abrufbar.
                     $ok_text = 'Zugang angelegt, aber der Mailversand schlug fehl. '
                              . 'Geben Sie den folgenden Link persönlich weiter:';
-                    $manueller_link = $link;
+                    $versand_fehler = true;
                 }
             }
         }
@@ -87,7 +90,7 @@ if (ist_post()) {
 seite_kopf('Person einladen', 'breit');
 ?>
   <?php meldung($fehler, 'fehler'); ?>
-  <?php meldung($ok_text, $manueller_link !== '' ? 'hinweis' : 'ok'); ?>
+  <?php meldung($ok_text, $versand_fehler ? 'hinweis' : 'ok'); ?>
 
   <?php if ($manueller_link !== ''): ?>
     <p class="einmal-link"><code><?= e($manueller_link) ?></code></p>

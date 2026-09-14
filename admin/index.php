@@ -13,12 +13,17 @@ $ich = admin_verlangen();
 
 $meldung_text = $_SESSION['admin_meldung'] ?? '';
 $meldung_art  = $_SESSION['admin_meldung_art'] ?? 'ok';
-unset($_SESSION['admin_meldung'], $_SESSION['admin_meldung_art']);
+$einmal_link  = $_SESSION['admin_einmal_link'] ?? '';
+unset($_SESSION['admin_meldung'], $_SESSION['admin_meldung_art'], $_SESSION['admin_einmal_link']);
 
-function admin_melden(string $text, string $art = 'ok'): never
+function admin_melden(string $text, string $art = 'ok', string $einmal_link = ''): never
 {
     $_SESSION['admin_meldung'] = $text;
     $_SESSION['admin_meldung_art'] = $art;
+    if ($einmal_link !== '') {
+        // Überlebt genau eine Weiterleitung und wird beim Anzeigen gelöscht.
+        $_SESSION['admin_einmal_link'] = $einmal_link;
+    }
     weiter_zu('/admin/');
 }
 
@@ -90,9 +95,12 @@ if (ist_post()) {
             protokoll('einladung_erneut', $ziel['email'], $ziel_id, 'durch ' . $ich['email']);
 
             admin_melden(
-                $ok ? 'Neue Einladung verschickt an ' . $ziel['email']
-                    : 'Einladung angelegt, aber der Mailversand schlug fehl.',
-                $ok ? 'ok' : 'fehler'
+                $ok ? 'Neue Einladung verschickt an ' . $ziel['email'] . '. Kommt sie nicht an, '
+                      . 'geben Sie den folgenden Link persönlich weiter:'
+                    : 'Einladung angelegt, aber der Mailversand schlug fehl. '
+                      . 'Geben Sie den folgenden Link persönlich weiter:',
+                $ok ? 'ok' : 'hinweis',
+                $link
             );
 
         default:
@@ -112,6 +120,14 @@ foreach ($benutzer as $b) {
 seite_kopf('Benutzerverwaltung', 'breit');
 ?>
   <?php meldung($meldung_text, $meldung_art); ?>
+
+  <?php if ($einmal_link !== ''): ?>
+    <p class="einmal-link"><code><?= e($einmal_link) ?></code></p>
+    <p class="konto__hinweis">
+      Dieser Link wird nur jetzt angezeigt. In der Datenbank steht lediglich
+      seine Prüfsumme, er lässt sich später nicht wiederherstellen.
+    </p>
+  <?php endif; ?>
 
   <p class="konto__lead">
     <?= (int)$anzahl['aktiv'] ?> aktiv &middot;
