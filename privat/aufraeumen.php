@@ -104,6 +104,25 @@ if ($triz_da) {
     $bericht[] = $anzahl . " Einträge im KI-Verlauf (älter als {$ki_tage} Tage)";
 
     /*
+     * Abo-Videos nach derselben Altersgrenze, mit der der Sammellauf sie
+     * aufnimmt. Eine abweichende Grenze hieße: Um 4 Uhr gelöscht, um 5 Uhr
+     * aus dem Feed wieder eingetragen - jeden Tag. Die Tabelle gibt es erst,
+     * seit die Abos eingespielt sind, deshalb eigens geprüft.
+     */
+    if ((bool)$pdo->query("SHOW TABLES LIKE 'triz_abo_videos'")->fetchColumn()) {
+        // Genau wie triz_abo_hoechstalter_tage(): leer zählt als Vorgabe,
+        // nicht als 0. Sonst griffe hier das Minimum von 7 Tagen, während
+        // der Sammellauf mit 180 arbeitet.
+        $abo_wert = $CONFIG['triz']['abo_hoechstalter_tage'] ?? null;
+        $abo_tage = max(7, ($abo_wert === null || $abo_wert === '') ? 180 : (int)$abo_wert);
+        $anzahl = $pdo->exec(
+            'DELETE FROM triz_abo_videos
+             WHERE veroeffentlicht_am < (NOW() - INTERVAL ' . $abo_tage . ' DAY)'
+        );
+        $bericht[] = $anzahl . " Abo-Videos (älter als {$abo_tage} Tage)";
+    }
+
+    /*
      * Favoriten und Kommentare zeigen ohne Fremdschlüssel auf ihr Objekt -
      * siehe den Kommentar in schema_triz.sql. Wird ein Dokument gelöscht,
      * bleibt der Favorit als Leiche zurück; hier fliegt er raus.

@@ -404,26 +404,13 @@ function triz_youtube_sammeln(array $quelle): int
         return 0;
     }
 
-    $inhalt = triz_abrufen($feed, $fehler);
-    if ($inhalt === null) {
+    $gelesen = triz_youtube_feed_lesen($feed, $fehler);
+    if ($gelesen === null) {
         triz_quelle_vermerken((int)$quelle['id'], 0, (string)$fehler);
         return 0;
     }
-    if (str_contains($inhalt, '<!ENTITY')) {
-        return 0;
-    }
 
-    $vorher = libxml_use_internal_errors(true);
-    $wurzel = simplexml_load_string($inhalt, SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
-    libxml_clear_errors();
-    libxml_use_internal_errors($vorher);
-
-    if ($wurzel === false) {
-        triz_quelle_vermerken((int)$quelle['id'], 0, 'Feed nicht lesbar');
-        return 0;
-    }
-
-    $kanal = trim((string)($wurzel->title ?? $quelle['name']));
+    $kanal = $gelesen['kanal'] !== '' ? $gelesen['kanal'] : (string)$quelle['name'];
 
     $stmt = db()->prepare(
         'INSERT IGNORE INTO triz_videos
@@ -433,13 +420,72 @@ function triz_youtube_sammeln(array $quelle): int
     );
 
     $neu = 0;
+    foreach ($gelesen['eintraege'] as $v) {
+        $stmt->execute([
+            (int)$quelle['id'],
+            $v['video_id'],
+            $v['titel'],
+            mb_substr($kanal, 0, 160),
+            $v['beschreibung'],
+            $v['bild'],
+            triz_sprache_raten($v['titel'] . ' ' . $v['beschreibung'], (string)$quelle['sprache']),
+            $quelle['kategorie_id'] !== null ? (int)$quelle['kategorie_id'] : null,
+            $v['zeit'],
+        ]);
+        $neu += $stmt->rowCount();
+    }
+
+    triz_quelle_vermerken((int)$quelle['id'], $neu, '');
+    return $neu;
+}
+
+/**
+ * Holt und liest einen YouTube-Atom-Feed.
+ *
+ * Gemeinsam genutzt von der Videothek (triz_youtube_sammeln) und den
+ * persönlichen Abos (triz_abos_sammeln): Beide sollen dieselben
+ * Sicherheitsprüfungen durchlaufen, und eine zweite, abweichende Kopie des
+ * Lesers wäre genau die Stelle, an der das irgendwann auseinanderläuft.
+ *
+ * Rückgabe: ['kanal' => Kanalname, 'eintraege' => [...]], oder null mit
+ * Begründung in $fehler. Jeder Eintrag hat video_id, titel, beschreibung,
+ * bild und zeit (Y-m-d H:i:s oder null), bereits auf Spaltenlänge gekürzt.
+ */
+function triz_youtube_feed_lesen(string $feed, ?string &$fehler = null): ?array
+{
+    $fehler = null;
+
+    $inhalt = triz_abrufen($feed, $fehler);
+    if ($inhalt === null) {
+        return null;
+    }
+
+    // Eine Entity-Deklaration hat in einem YouTube-Feed nichts verloren und
+    // ist das Einfallstor für XXE - solche Antworten werden gar nicht erst
+    // geparst.
+    if (str_contains($inhalt, '<!ENTITY')) {
+        $fehler = 'Feed abgelehnt (Entity-Deklaration)';
+        return null;
+    }
+
+    $vorher = libxml_use_internal_errors(true);
+    $wurzel = simplexml_load_string($inhalt, SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
+    libxml_clear_errors();
+    libxml_use_internal_errors($vorher);
+
+    if ($wurzel === false) {
+        $fehler = 'Feed nicht lesbar';
+        return null;
+    }
+
+    $eintraege = [];
     foreach ($wurzel->entry ?? [] as $e) {
         $yt    = $e->children('http://www.youtube.com/xml/schemas/2015');
         $media = $e->children('http://search.yahoo.com/mrss/');
 
         $video_id = trim((string)($yt->videoId ?? ''));
         $titel    = trim((string)($e->title ?? ''));
-        if ($video_id === '' || $titel === '') {
+        if ($video_id === '' || $titel === '' || !preg_match('/^[\w-]{5,20}$/', $video_id)) {
             continue;
         }
 
@@ -458,22 +504,19 @@ function triz_youtube_sammeln(array $quelle): int
 
         $zeit = strtotime((string)($e->published ?? ''));
 
-        $stmt->execute([
-            (int)$quelle['id'],
-            mb_substr($video_id, 0, 20),
-            mb_substr($titel, 0, 400),
-            mb_substr($kanal, 0, 160),
-            $beschreibung,
-            mb_substr($bild, 0, 500),
-            triz_sprache_raten($titel . ' ' . $beschreibung, (string)$quelle['sprache']),
-            $quelle['kategorie_id'] !== null ? (int)$quelle['kategorie_id'] : null,
-            $zeit !== false ? date('Y-m-d H:i:s', $zeit) : null,
-        ]);
-        $neu += $stmt->rowCount();
+        $eintraege[] = [
+            'video_id'     => mb_substr($video_id, 0, 20),
+            'titel'        => mb_substr($titel, 0, 400),
+            'beschreibung' => $beschreibung,
+            'bild'         => mb_substr($bild, 0, 500),
+            'zeit'         => $zeit !== false ? date('Y-m-d H:i:s', $zeit) : null,
+        ];
     }
 
-    triz_quelle_vermerken((int)$quelle['id'], $neu, '');
-    return $neu;
+    return [
+        'kanal'     => trim((string)($wurzel->title ?? '')),
+        'eintraege' => $eintraege,
+    ];
 }
 
 /**

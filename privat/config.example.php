@@ -85,6 +85,12 @@ return [
         'abruf_timeout_sekunden'    => 20,   // je Quelle
         'beitrag_hoechstalter_tage' => 400,  // ältere Feed-Einträge übergehen
 
+        // Persönliche YouTube-Abos: Videos, die älter sind, werden weder
+        // aufgenommen noch aufbewahrt. Sammellauf und Aufräumen lesen beide
+        // diesen einen Wert - so löscht das eine nie, was das andere gleich
+        // wieder einträgt.
+        'abo_hoechstalter_tage'     => 180,
+
         // Wissensdatenbank
         'upload_max_mb' => 64,
 

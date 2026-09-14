@@ -70,3 +70,28 @@ if ($stumm !== []) {
         echo '  - ' . $q['name'] . ': ' . $q['letzter_fehler'] . "\n";
     }
 }
+
+// ---------------------------------------------------------------------------
+// Persönliche YouTube-Abos
+//
+// Eigener Durchgang nach den gemeinsamen Quellen. Absichtlich nur Zahlen in
+// der Ausgabe: Die Cron-Mail geht an den Administrator, und die Kanäle eines
+// anderen Benutzers gehen ihn nichts an. Welche Kanäle hängen, sieht jeder
+// auf seiner eigenen Abo-Seite.
+// ---------------------------------------------------------------------------
+
+require_once PRIVAT_PFAD . '/lib/triz_abos.php';
+
+$beginn_abos = microtime(true);
+$abos = triz_abos_sammeln();
+
+if ($abos['abos'] > 0) {
+    echo sprintf(
+        "%s Abos: %d Kanäle, %d neue Videos, %d nicht erreichbar (%s s)\n",
+        date('Y-m-d H:i:s'),
+        $abos['abos'],
+        $abos['videos'],
+        count($abos['fehler']),
+        round(microtime(true) - $beginn_abos, 1)
+    );
+}

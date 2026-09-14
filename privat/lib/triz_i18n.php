@@ -269,6 +269,57 @@ function triz_texte(): array
         'datenschutz'       => ['de' => 'Datenschutz',               'ru' => 'Защита данных'],
         'startseite'        => ['de' => 'Startseite',                'ru' => 'Главная'],
         'angemeldet_als'    => ['de' => 'Angemeldet als %s',         'ru' => 'Вы вошли как %s'],
+
+        // --- Meine YouTube-Abos ---------------------------------------------
+        'nav_abos'          => ['de' => 'Meine Abos',                'ru' => 'Мои подписки'],
+        'abos_titel'        => ['de' => 'Meine YouTube-Abos',        'ru' => 'Мои подписки YouTube'],
+        'abos_lead'         => [
+            'de' => 'Neue Videos aus den Kanälen, die du abonniert hast.',
+            'ru' => 'Новые видео с каналов, на которые вы подписаны.',
+        ],
+        'abos_privat'       => [
+            'de' => 'Diese Seite sieht nur dein Konto – auch Administratoren haben keinen Einblick.',
+            'ru' => 'Эту страницу видит только ваша учётная запись – даже администраторы не имеют к ней доступа.',
+        ],
+        'abo_zusammenfassung' => ['de' => '%d Kanäle · %d Videos · %d neu', 'ru' => 'Каналов: %d · видео: %d · новых: %d'],
+        'abo_letzter_lauf'  => ['de' => 'Zuletzt aktualisiert: %s',  'ru' => 'Последнее обновление: %s'],
+        'abo_nie'           => ['de' => 'noch nie',                  'ru' => 'ещё не обновлялось'],
+        'abo_aktualisieren' => ['de' => 'Jetzt aktualisieren',       'ru' => 'Обновить сейчас'],
+        'abo_hinweis_aktualisieren' => [
+            'de' => 'Neue Videos kommen jeden Morgen automatisch. Der Knopf holt sie sofort – das dauert etwa eine halbe Minute.',
+            'ru' => 'Новые видео загружаются автоматически каждое утро. Кнопка загрузит их сразу – это займёт около полуминуты.',
+        ],
+        'abo_aktualisiert'  => ['de' => '%d Kanäle abgefragt, %d neue Videos.', 'ru' => 'Проверено каналов: %d, новых видео: %d.'],
+        'abo_fehlerhaft'    => ['de' => '%d Kanäle waren nicht erreichbar.',   'ru' => 'Недоступно каналов: %d.'],
+        'abo_kanal'         => ['de' => 'Kanal',                     'ru' => 'Канал'],
+        'abo_alle_kanaele'  => ['de' => 'Alle Kanäle',               'ru' => 'Все каналы'],
+        'abo_nur_neue'      => ['de' => 'Nur neue',                  'ru' => 'Только новые'],
+        'abo_neu'           => ['de' => 'neu',                       'ru' => 'новое'],
+        'abo_videos'        => ['de' => 'Videos',                    'ru' => 'Видео'],
+        'abo_letztes_video' => ['de' => 'Letztes Video',             'ru' => 'Последнее видео'],
+        'abo_keine'         => [
+            'de' => 'Du hast noch keine Abos. Füge unten einen Kanal hinzu.',
+            'ru' => 'У вас пока нет подписок. Добавьте канал ниже.',
+        ],
+        'abo_verwalten'     => ['de' => 'Kanäle verwalten',          'ru' => 'Управление каналами'],
+        'abo_hinzufuegen'   => ['de' => 'Kanal hinzufügen',          'ru' => 'Добавить канал'],
+        'abo_eingabe'       => ['de' => 'Kanaladresse, @handle oder Kanal-ID', 'ru' => 'Адрес канала, @handle или ID канала'],
+        'abo_hinzufuegen_knopf' => ['de' => 'Hinzufügen',            'ru' => 'Добавить'],
+        'abo_entfernen'     => ['de' => 'Entfernen',                 'ru' => 'Удалить'],
+        'abo_entfernen_frage' => [
+            'de' => 'Diesen Kanal und seine gesammelten Videos entfernen?',
+            'ru' => 'Удалить этот канал и собранные видео?',
+        ],
+        'abo_entfernt'      => ['de' => '„%s" wurde entfernt.',      'ru' => '«%s» удалён.'],
+        'abo_nicht_gefunden' => ['de' => 'Dieser Kanal gehört nicht zu deinen Abos.', 'ru' => 'Этот канал не входит в ваши подписки.'],
+        'abo_nicht_erkannt' => [
+            'de' => 'Diese Eingabe ließ sich keinem YouTube-Kanal zuordnen.',
+            'ru' => 'Не удалось определить канал YouTube по этому вводу.',
+        ],
+        'abo_nicht_erreichbar' => ['de' => 'Der Kanal ist nicht erreichbar (%s).', 'ru' => 'Канал недоступен (%s).'],
+        'abo_schon_da'      => ['de' => '„%s" ist bereits abonniert.', 'ru' => '«%s» уже есть в подписках.'],
+        'abo_hinzugefuegt'  => ['de' => '„%s" hinzugefügt, %d Videos übernommen.', 'ru' => '«%s» добавлен, загружено видео: %d.'],
+        'abo_fehler_letzter' => ['de' => 'Letzter Abruf fehlgeschlagen', 'ru' => 'Последняя загрузка не удалась'],
     ];
 }
 

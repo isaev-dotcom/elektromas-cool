@@ -583,3 +583,35 @@ body.triz--schmal { display: grid; align-content: center; min-height: 100vh;
   .eintrag, .karte, .bib__eintrag { border: 0; box-shadow: none; padding: 0 0 12px; }
   body.triz { background: #fff; color: #000; }
 }
+
+/* ===========================================================================
+   Meine YouTube-Abos
+   =========================================================================== */
+
+.abo-privat { margin: -6px 0 18px; }
+
+.abo-kopf {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 14px; padding: 16px 18px; margin-bottom: 6px;
+  background: var(--flaeche); border: 1px solid var(--rand);
+  border-radius: var(--rund);
+}
+.abo-kopf p { line-height: 1.5; }
+.abo-hinweis { margin: 0 0 20px; }
+
+.abo-nurneu {
+  display: flex; align-items: center; gap: 7px; align-self: end;
+  margin: 0 0 8px; font-size: .88rem; font-weight: 500; cursor: pointer;
+}
+/* Die Filterregel gibt jedem input eine Mindestbreite von 150 px - einem
+   Kontrollkästchen stünde es dann weit vor seiner Beschriftung. */
+.abo-nurneu input { width: auto; min-width: 0; margin: 0; padding: 0; }
+
+/* Neue Videos bekommen eine Akzentkante, damit sie im Raster auffallen. */
+.video--neu { box-shadow: inset 0 3px 0 var(--akzent); }
+
+.abo-fehler { color: var(--fehler); }
+.abo-entfernen { margin: 0; }
+
+.abo-verwalten { margin-top: 40px; }
+.abo-verwalten h2 { margin-bottom: 14px; }

@@ -36,7 +36,16 @@ function triz_kopf(string $titel, string $aktiv = '', bool $schmal = false): voi
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/favicon-192.png">
-<link rel="stylesheet" href="/TRIZ/triz.css">
+<?php
+    // Versionsnummer aus dem Änderungsdatum: Der Server schickt für das
+    // Stylesheet keine Cache-Anweisung, also behält der Browser nach eigenem
+    // Ermessen die alte Fassung - und neue Regeln kommen tagelang nicht an.
+    // Ändert sich die Datei, ändert sich die Adresse, und jeder Browser holt
+    // sie frisch.
+    $css_datei = ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/TRIZ/triz.css';
+    $css_stand = is_file($css_datei) ? (string)filemtime($css_datei) : '';
+?>
+<link rel="stylesheet" href="/TRIZ/triz.css<?= $css_stand !== '' ? '?v=' . e($css_stand) : '' ?>">
 </head>
 <body class="<?= $schmal ? 'triz triz--schmal' : 'triz' ?>">
 
@@ -147,6 +156,16 @@ function triz_navigation(string $aktiv): void
         ['tag',        '/TRIZ/tagesuebersicht.php', 'nav_tag',    '☼'],
         ['favoriten',  '/TRIZ/favoriten.php',   'nav_favoriten',  '★'],
     ];
+
+    // Die Abos erscheinen nur bei Benutzern, die welche haben - wer keine
+    // führt, soll keinen Menüpunkt auf eine leere Seite sehen.
+    $b = triz_angemeldet() ? triz_benutzer() : null;
+    if ($b !== null && is_file(PRIVAT_PFAD . '/lib/triz_abos.php')) {
+        require_once PRIVAT_PFAD . '/lib/triz_abos.php';
+        if (triz_hat_abos((int)$b['id'])) {
+            array_splice($punkte, 4, 0, [['abos', '/TRIZ/abos.php', 'nav_abos', '◉']]);
+        }
+    }
     ?>
     <ul>
       <?php foreach ($punkte as [$schluessel, $ziel, $text, $zeichen]): ?>

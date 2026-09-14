@@ -16,8 +16,9 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/privat/lib/triz_bootstrap.php';
 require_once PRIVAT_PFAD . '/lib/triz_sammler.php';
+require_once PRIVAT_PFAD . '/lib/triz_abos.php';
 
-triz_login_verlangen();
+$ich = triz_login_verlangen();
 
 $video_id = (string)($_GET['v'] ?? '');
 
@@ -31,9 +32,14 @@ if (!preg_match('/^[\w-]{5,20}$/', $video_id)) {
 
 // Nur Bilder zu Videos, die wir auch führen. Sonst wäre das hier ein offener
 // Bildabruf-Dienst für beliebige YouTube-Kennungen.
+//
+// Zwei Fälle: ein Video der gemeinsamen Videothek - das darf jeder
+// Angemeldete sehen - oder ein Video aus den eigenen Abos. Fremde Abos
+// bleiben außen vor: Sonst ließe sich durch Probieren von Video-IDs
+// herausfinden, welche Kanäle ein anderer Benutzer abonniert hat.
 $stmt = db()->prepare('SELECT 1 FROM triz_videos WHERE video_id = ?');
 $stmt->execute([$video_id]);
-if (!$stmt->fetchColumn()) {
+if (!$stmt->fetchColumn() && !triz_abo_video_gehoert((int)$ich['id'], $video_id)) {
     http_response_code(404);
     exit;
 }

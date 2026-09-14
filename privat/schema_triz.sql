@@ -335,3 +335,63 @@ CREATE TABLE IF NOT EXISTS triz_ki_verlauf (
   CONSTRAINT fk_triz_ki_benutzer FOREIGN KEY (benutzer_id)
     REFERENCES triz_benutzer (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===========================================================================
+-- Persönliche YouTube-Abos
+--
+-- Bewusst getrennt von triz_quellen und triz_videos: Die Videothek sehen alle
+-- Portalnutzer, die Abos nur ihr Besitzer. Lägen Abo-Videos in triz_videos,
+-- tauchten private Kanäle in der gemeinsamen Videothek, im Dashboard und in
+-- der Suche auf - die Trennung wäre dann eine Frage der richtigen Abfrage an
+-- jeder dieser Stellen. Eigene Tabellen machen sie zur Eigenschaft des
+-- Datenmodells, wie schon bei den Benutzern (siehe Kopf dieser Datei).
+--
+-- Jedes Abo gehört genau einem Benutzer. Wird der Benutzer gelöscht,
+-- verschwinden seine Abos samt Videos mit (ON DELETE CASCADE).
+-- ===========================================================================
+
+CREATE TABLE IF NOT EXISTS triz_abos (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  benutzer_id     INT UNSIGNED  NOT NULL,
+  kanal_id        VARCHAR(40)   NOT NULL,
+  name            VARCHAR(160)  NOT NULL DEFAULT '',
+  aktiv           TINYINT(1)    NOT NULL DEFAULT 1,
+  letzter_lauf    DATETIME      DEFAULT NULL,
+  letzter_fehler  VARCHAR(255)  NOT NULL DEFAULT '',
+  erstellt_am     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_triz_abo (benutzer_id, kanal_id),
+  KEY idx_triz_abo_aktiv (aktiv),
+  CONSTRAINT fk_triz_abo_benutzer FOREIGN KEY (benutzer_id)
+    REFERENCES triz_benutzer (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Keine Spalte für Laufzeit oder Sprache: Die Abo-Seite filtert nach Kanal,
+-- und die Laufzeit gäbe es nur gegen API-Kontingent - für eine persönliche
+-- Neuheitenliste nicht der Mühe wert.
+CREATE TABLE IF NOT EXISTS triz_abo_videos (
+  id                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  abo_id             INT UNSIGNED  NOT NULL,
+  video_id           VARCHAR(20)   NOT NULL,
+  titel              VARCHAR(400)  NOT NULL,
+  beschreibung       TEXT          NOT NULL,
+  veroeffentlicht_am DATETIME      DEFAULT NULL,
+  gefunden_am        DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_triz_abo_video (abo_id, video_id),
+  KEY idx_triz_abo_video_zeit (veroeffentlicht_am),
+  KEY idx_triz_abo_video_id (video_id),
+  CONSTRAINT fk_triz_abo_video_abo FOREIGN KEY (abo_id)
+    REFERENCES triz_abos (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Wann hat der Benutzer seine Abos zuletzt angesehen? Daran hängt die
+-- Markierung "neu". Eine eigene kleine Tabelle statt einer Spalte in
+-- triz_benutzer, damit die Abos das Benutzermodell nicht verändern.
+CREATE TABLE IF NOT EXISTS triz_abo_stand (
+  benutzer_id        INT UNSIGNED  NOT NULL,
+  zuletzt_angesehen  DATETIME      DEFAULT NULL,
+  PRIMARY KEY (benutzer_id),
+  CONSTRAINT fk_triz_abo_stand_benutzer FOREIGN KEY (benutzer_id)
+    REFERENCES triz_benutzer (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

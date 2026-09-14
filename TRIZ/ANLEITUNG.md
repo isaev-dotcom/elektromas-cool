@@ -219,6 +219,66 @@ herabstufen — das ist der zuverlässigste Weg, sich auszusperren.
 
 ---
 
+## 5a. Meine YouTube-Abos
+
+Persönliche Seite unter `/TRIZ/abos.php` mit den neuen Videos aus den
+Kanälen, die ein Benutzer führt. Der Menüpunkt *Meine Abos* erscheint nur bei
+Benutzern, die mindestens ein Abo haben.
+
+### Wer was sieht
+
+**Jeder sieht ausschließlich seine eigenen Abos — auch Administratoren sehen
+keine fremden.** Das ist gewollt: Abos verraten private Interessen. Umgesetzt
+ist es nicht über die Rolle, sondern im Datenmodell (eigene Tabellen
+`triz_abos`, `triz_abo_videos`, `triz_abo_stand`) und in jeder Abfrage, die
+die `benutzer_id` des Angemeldeten bindet. Konkret abgesichert:
+
+- Abo-Videos stehen **nicht** in der gemeinsamen Videothek, im Dashboard oder
+  in der Suche.
+- Ein Kanal lässt sich nur aus den eigenen Abos entfernen, auch mit einer von
+  Hand eingesetzten ID.
+- `thumbnail.php` liefert Vorschaubilder zu Abo-Videos nur an den Besitzer.
+  Sonst ließe sich durch Probieren von Video-IDs erraten, was jemand
+  abonniert hat.
+- Die Cron-Mail an den Administrator nennt nur Zahlen, keine Kanalnamen.
+
+### Woher die Abos kommen
+
+YouTube gibt die Abo-Liste eines Kontos nur über eine OAuth-Anmeldung heraus.
+Darauf wurde bewusst verzichtet — ohne von Google geprüfte App läuft eine
+solche Anmeldung alle 7 Tage ab. Stattdessen wurden die Abos **einmal
+übernommen** (am 14.09.2026, 83 Kanäle für isaev@elektromas.de). Neue
+Videos kommen danach täglich über die öffentlichen Kanal-Feeds, dafür ist
+keine Anmeldung nötig.
+
+Einen neu abonnierten Kanal trägt man unten auf der Abo-Seite ein — die
+Kanaladresse, das `@handle` oder die Kanal-ID genügt. Für eine vollständige
+Neuübernahme aus YouTube: Liste unter youtube.com/feed/channels auslesen und
+über `triz_abos_importieren()` einspielen; bereits vorhandene Kanäle werden
+dabei übergangen.
+
+### Sammeln und Aufräumen
+
+- Der nächtliche Sammellauf (`triz_sammeln.php`) holt nach den gemeinsamen
+  Quellen auch alle Abos. Rund 130 ms je Kanal, bei 83 Kanälen etwa 15 s.
+- *Jetzt aktualisieren* auf der Abo-Seite holt nur die eigenen Kanäle.
+- Aufgenommen werden nur Videos der letzten **180 Tage**
+  (`abo_hoechstalter_tage` in der Konfiguration). Das Aufräumen löscht mit
+  **derselben** Grenze. Wer den Wert ändert, ändert ihn für beides — wichen
+  sie ab, würde täglich um 4 Uhr gelöscht, was um 5 Uhr wieder eingetragen
+  wird.
+- Kanäle, die im letzten halben Jahr nichts hochgeladen haben, stehen deshalb
+  mit 0 Videos in der Liste. Das ist kein Fehler.
+
+### „Neu"
+
+Als neu gilt, was seit dem vorigen Besuch gefunden wurde. Der Vergleichspunkt
+wird einmal je Sitzung festgehalten, sonst verlöre ein Video seine Markierung
+schon beim Blättern. Beim allerersten Besuch gibt es keinen Vergleichspunkt;
+dann gilt, was in den letzten drei Tagen erschienen ist.
+
+---
+
 ## 6. Was noch in die Datenschutzerklärung gehört
 
 **Bitte vor der Freigabe für Mitarbeitende erledigen.** Die
