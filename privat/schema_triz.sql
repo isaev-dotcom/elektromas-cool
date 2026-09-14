@@ -355,12 +355,14 @@ CREATE TABLE IF NOT EXISTS triz_abos (
   benutzer_id     INT UNSIGNED  NOT NULL,
   kanal_id        VARCHAR(40)   NOT NULL,
   name            VARCHAR(160)  NOT NULL DEFAULT '',
+  bereich         VARCHAR(20)   NOT NULL DEFAULT 'verschiedenes',
   aktiv           TINYINT(1)    NOT NULL DEFAULT 1,
   letzter_lauf    DATETIME      DEFAULT NULL,
   letzter_fehler  VARCHAR(255)  NOT NULL DEFAULT '',
   erstellt_am     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uniq_triz_abo (benutzer_id, kanal_id),
+  KEY idx_triz_abo_bereich (benutzer_id, bereich),
   KEY idx_triz_abo_aktiv (aktiv),
   CONSTRAINT fk_triz_abo_benutzer FOREIGN KEY (benutzer_id)
     REFERENCES triz_benutzer (id) ON DELETE CASCADE
@@ -395,3 +397,12 @@ CREATE TABLE IF NOT EXISTS triz_abo_stand (
   CONSTRAINT fk_triz_abo_stand_benutzer FOREIGN KEY (benutzer_id)
     REFERENCES triz_benutzer (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bereich eines Abos (TRIZ, KI, Bienen, ...). Für Datenbanken, in denen
+-- triz_abos schon vor dieser Spalte angelegt wurde. ADD COLUMN IF NOT EXISTS
+-- ist MariaDB-Syntax - der Webspace läuft auf MariaDB. Die zulässigen Werte
+-- stehen in triz_abo_bereiche() und nicht in einem ENUM, damit ein neuer
+-- Bereich keinen Umbau der Tabelle verlangt.
+ALTER TABLE triz_abos ADD COLUMN IF NOT EXISTS
+  bereich VARCHAR(20) NOT NULL DEFAULT 'verschiedenes' AFTER name;
+ALTER TABLE triz_abos ADD INDEX IF NOT EXISTS idx_triz_abo_bereich (benutzer_id, bereich);

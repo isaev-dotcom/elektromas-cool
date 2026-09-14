@@ -31,6 +31,49 @@ function triz_abo_hoechstalter_tage(): int
     return max(7, (int)triz_einstellung('abo_hoechstalter_tage', 180));
 }
 
+/**
+ * Die Bereiche, in die sich Abos einteilen lassen - in Anzeigereihenfolge.
+ *
+ * Schlüssel => Übersetzungsschlüssel. Die einzige Stelle, an der die Bereiche
+ * festgelegt sind: Die Datenbank speichert nur den Schlüssel als Text, damit
+ * ein neuer Bereich hier eine Zeile ist und kein Umbau der Tabelle.
+ * "verschiedenes" ist der Auffangbereich und muss letzter bleiben.
+ */
+function triz_abo_bereiche(): array
+{
+    return [
+        'triz'          => 'abo_bereich_triz',
+        'ki'            => 'abo_bereich_ki',
+        'bienen'        => 'abo_bereich_bienen',
+        'sport'         => 'abo_bereich_sport',
+        'verschiedenes' => 'abo_bereich_verschiedenes',
+    ];
+}
+
+/** Anzeigename eines Bereichs; Unbekanntes fällt auf "Verschiedenes". */
+function triz_abo_bereich_name(string $bereich): string
+{
+    $alle = triz_abo_bereiche();
+    return t($alle[$bereich] ?? $alle['verschiedenes']);
+}
+
+/** Setzt den Bereich eines eigenen Abos. Rückgabe: Kanalname, oder null. */
+function triz_abo_bereich_setzen(int $benutzer_id, int $abo_id, string $bereich): ?string
+{
+    if (!array_key_exists($bereich, triz_abo_bereiche())) {
+        return null;
+    }
+    $stmt = db()->prepare('SELECT name FROM triz_abos WHERE id = ? AND benutzer_id = ?');
+    $stmt->execute([$abo_id, $benutzer_id]);
+    $name = $stmt->fetchColumn();
+    if ($name === false) {
+        return null;
+    }
+    $up = db()->prepare('UPDATE triz_abos SET bereich = ? WHERE id = ? AND benutzer_id = ?');
+    $up->execute([$bereich, $abo_id, $benutzer_id]);
+    return (string)$name;
+}
+
 /** Hat der Benutzer mindestens ein Abo? Steuert, ob der Menüpunkt erscheint. */
 function triz_hat_abos(int $benutzer_id): bool
 {
@@ -103,8 +146,12 @@ function triz_abos_importieren(int $benutzer_id, array $liste): int
  *
  * Rückgabe: ['ok' => bool, 'text' => Meldung für die Oberfläche]
  */
-function triz_abo_hinzufuegen(int $benutzer_id, string $eingabe): array
+function triz_abo_hinzufuegen(int $benutzer_id, string $eingabe, string $bereich = 'verschiedenes'): array
 {
+    if (!array_key_exists($bereich, triz_abo_bereiche())) {
+        $bereich = 'verschiedenes';
+    }
+
     $kanal_id = triz_abo_kanal_id($eingabe);
     if ($kanal_id === null) {
         return ['ok' => false, 'text' => t('abo_nicht_erkannt')];
@@ -121,9 +168,9 @@ function triz_abo_hinzufuegen(int $benutzer_id, string $eingabe): array
     }
 
     $stmt = db()->prepare(
-        'INSERT IGNORE INTO triz_abos (benutzer_id, kanal_id, name) VALUES (?, ?, ?)'
+        'INSERT IGNORE INTO triz_abos (benutzer_id, kanal_id, name, bereich) VALUES (?, ?, ?, ?)'
     );
-    $stmt->execute([$benutzer_id, $kanal_id, mb_substr($gelesen['kanal'], 0, 160)]);
+    $stmt->execute([$benutzer_id, $kanal_id, mb_substr($gelesen['kanal'], 0, 160), $bereich]);
 
     if ($stmt->rowCount() === 0) {
         return ['ok' => false, 'text' => t('abo_schon_da', $gelesen['kanal'])];

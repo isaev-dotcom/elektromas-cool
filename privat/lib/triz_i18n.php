@@ -320,6 +320,14 @@ function triz_texte(): array
         'abo_schon_da'      => ['de' => '„%s" ist bereits abonniert.', 'ru' => '«%s» уже есть в подписках.'],
         'abo_hinzugefuegt'  => ['de' => '„%s" hinzugefügt, %d Videos übernommen.', 'ru' => '«%s» добавлен, загружено видео: %d.'],
         'abo_fehler_letzter' => ['de' => 'Letzter Abruf fehlgeschlagen', 'ru' => 'Последняя загрузка не удалась'],
+        'abo_bereich'       => ['de' => 'Bereich',                   'ru' => 'Раздел'],
+        'abo_alle_bereiche' => ['de' => 'Alle',                      'ru' => 'Все'],
+        'abo_bereich_geaendert' => ['de' => '„%s" liegt jetzt unter %s.', 'ru' => '«%s» перемещён в раздел «%s».'],
+        'abo_bereich_triz'  => ['de' => 'TRIZ',                      'ru' => 'ТРИЗ'],
+        'abo_bereich_ki'    => ['de' => 'KI',                        'ru' => 'ИИ'],
+        'abo_bereich_bienen' => ['de' => 'Bienen',                   'ru' => 'Пчёлы'],
+        'abo_bereich_sport' => ['de' => 'Sport & Gesundheit',        'ru' => 'Спорт и здоровье'],
+        'abo_bereich_verschiedenes' => ['de' => 'Verschiedenes',     'ru' => 'Разное'],
     ];
 }
 

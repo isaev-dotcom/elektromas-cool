@@ -270,6 +270,21 @@ dabei übergangen.
 - Kanäle, die im letzten halben Jahr nichts hochgeladen haben, stehen deshalb
   mit 0 Videos in der Liste. Das ist kein Fehler.
 
+### Bereiche
+
+Jedes Abo liegt in genau einem Bereich: TRIZ, KI, Bienen, Sport & Gesundheit
+oder Verschiedenes. Oben auf der Seite je Bereich ein Reiter mit der Zahl der
+neuen Videos, in der Kanaltabelle eine Auswahl zum Umhängen.
+
+Die Bereiche stehen an genau einer Stelle, `triz_abo_bereiche()` in
+`privat/lib/triz_abos.php`. Die Datenbank speichert nur den Schlüssel als
+Text, kein ENUM - ein neuer Bereich ist dort eine Zeile plus zwei
+Übersetzungen, ohne Umbau der Tabelle. Neue Kanäle landen ohne Angabe unter
+*Verschiedenes*.
+
+Die Ersteinteilung am 14.09.2026 erfolgte anhand der Kanalnamen und der Titel
+der letzten Videos.
+
 ### „Neu"
 
 Als neu gilt, was seit dem vorigen Besuch gefunden wurde. Der Vergleichspunkt

@@ -615,3 +615,28 @@ body.triz--schmal { display: grid; align-content: center; min-height: 100vh;
 
 .abo-verwalten { margin-top: 40px; }
 .abo-verwalten h2 { margin-bottom: 14px; }
+
+/* --- Abo-Bereiche --------------------------------------------------------- */
+
+.abo-bereiche { margin: 4px 0 16px; }
+.abo-bereiche a { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Zahl im Reiter: grau die Gesamtzahl, farbig abgesetzt die neuen Videos. */
+.abo-zahl {
+  min-width: 22px; padding: 1px 7px; font-size: .76rem; font-weight: 600;
+  text-align: center; border-radius: 999px;
+  color: var(--leise); background: var(--grund); border: 1px solid var(--rand);
+}
+.abo-zahl--neu { color: var(--akzent-text); background: var(--orange); border-color: var(--orange); }
+.reiter a.ist-an .abo-zahl { color: var(--akzent); background: var(--akzent-text); border-color: transparent; }
+.reiter a.ist-an .abo-zahl--neu { color: var(--akzent-text); background: var(--orange); }
+
+/* Zwischenzeile je Bereich in der Kanaltabelle */
+.abo-gruppe th {
+  padding-top: 18px; font-size: .82rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--akzent); background: transparent; border-bottom: 2px solid var(--akzent);
+}
+.abo-gruppe:first-child th { padding-top: 10px; }
+
+.abo-bereich-form { display: flex; gap: 6px; align-items: center; margin: 0; }
+.abo-bereich-form select { width: auto; min-width: 0; padding: 5px 8px; font-size: .86rem; }

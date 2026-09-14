@@ -42,9 +42,23 @@ if (ist_post()) {
 
         case 'hinzufuegen':
             @set_time_limit(60);
-            $r = triz_abo_hinzufuegen($uid, (string)($_POST['kanal'] ?? ''));
+            $r = triz_abo_hinzufuegen(
+                $uid,
+                (string)($_POST['kanal'] ?? ''),
+                (string)($_POST['bereich'] ?? 'verschiedenes')
+            );
             $meldung = [$r['text'], $r['ok'] ? 'ok' : 'fehler'];
             break;
+
+        case 'bereich':
+            $neu  = (string)($_POST['bereich'] ?? '');
+            $name = triz_abo_bereich_setzen($uid, (int)($_POST['abo'] ?? 0), $neu);
+            $meldung = $name === null
+                ? [t('abo_nicht_gefunden'), 'fehler']
+                : [t('abo_bereich_geaendert', $name, triz_abo_bereich_name($neu)), 'ok'];
+            // Zurück zur Kanalliste, dort wurde umgestellt.
+            $_SESSION['triz_abo_meldung'] = $meldung;
+            weiter_zu('/TRIZ/abos.php#kanaele');
 
         case 'entfernen':
             $name = triz_abo_entfernen($uid, (int)($_POST['abo'] ?? 0));
@@ -96,36 +110,56 @@ $ist_neu = static function (array $v) use ($neu_seit): bool {
 // Daten
 // ===========================================================================
 
+$bereiche = triz_abo_bereiche();
+
+// Sortierung der Kanäle nach der Reihenfolge der Bereiche, dann nach Name.
+// FIELD() mit Platzhaltern, damit die Reihenfolge allein aus
+// triz_abo_bereiche() kommt.
+$feld = 'FIELD(a.bereich, ' . implode(', ', array_fill(0, count($bereiche), '?')) . ')';
+
 $kanaele = db()->prepare(
-    'SELECT a.id, a.name, a.kanal_id, a.letzter_lauf, a.letzter_fehler,
+    'SELECT a.id, a.name, a.kanal_id, a.bereich, a.letzter_lauf, a.letzter_fehler,
             COUNT(v.id) AS anzahl, MAX(v.veroeffentlicht_am) AS letztes
      FROM triz_abos a
      LEFT JOIN triz_abo_videos v ON v.abo_id = a.id
      WHERE a.benutzer_id = ?
-     GROUP BY a.id, a.name, a.kanal_id, a.letzter_lauf, a.letzter_fehler
-     ORDER BY a.name'
+     GROUP BY a.id, a.name, a.kanal_id, a.bereich, a.letzter_lauf, a.letzter_fehler
+     ORDER BY ' . $feld . ', a.name'
 );
-$kanaele->execute([$uid]);
+$kanaele->execute(array_merge([$uid], array_keys($bereiche)));
 $kanaele = $kanaele->fetchAll();
 
-$kanal_ids = array_map(static fn($k) => (int)$k['id'], $kanaele);
+$kanal_bereich = [];
+foreach ($kanaele as $k) {
+    $kanal_bereich[(int)$k['id']] = (string)$k['bereich'];
+}
 
+$bereich  = (string)($_GET['bereich'] ?? '');
 $kanal    = (int)($_GET['kanal'] ?? 0);
 $suche    = trim((string)($_GET['q'] ?? ''));
 $nur_neu  = !empty($_GET['neu']);
 $seite    = max(1, (int)($_GET['seite'] ?? 1));
 $pro_seite = 24;
 
-// Ein Kanal aus der Adresszeile, der nicht zu diesem Benutzer gehört, wird
-// ignoriert. Die Abfrage unten bindet ohnehin die benutzer_id - das hier
-// verhindert nur eine irreführend leere Liste.
-if ($kanal > 0 && !in_array($kanal, $kanal_ids, true)) {
+if (!array_key_exists($bereich, $bereiche)) {
+    $bereich = '';
+}
+
+// Ein Kanal aus der Adresszeile, der nicht zu diesem Benutzer gehört - oder
+// nicht in den gewählten Bereich -, wird ignoriert. Die Abfrage unten bindet
+// ohnehin die benutzer_id; das hier verhindert nur eine irreführend leere
+// Liste.
+if ($kanal > 0 && (!isset($kanal_bereich[$kanal]) || ($bereich !== '' && $kanal_bereich[$kanal] !== $bereich))) {
     $kanal = 0;
 }
 
 $bedingungen = ['a.benutzer_id = ?'];
 $werte = [$uid];
 
+if ($bereich !== '') {
+    $bedingungen[] = 'a.bereich = ?';
+    $werte[] = $bereich;
+}
 if ($kanal > 0) {
     $bedingungen[] = 'a.id = ?';
     $werte[] = $kanal;
@@ -186,6 +220,39 @@ foreach ($kanaele as $k) {
 }
 $mit_fehler = array_values(array_filter($kanaele, static fn($k) => $k['letzter_fehler'] !== ''));
 
+// Kennzahlen je Bereich für die Reiter: Kanäle, Videos und neue Videos.
+$je_bereich = [];
+foreach (array_keys($bereiche) as $b) {
+    $je_bereich[$b] = ['kanaele' => 0, 'videos' => 0, 'neu' => 0];
+}
+foreach ($kanaele as $k) {
+    $b = isset($je_bereich[$k['bereich']]) ? (string)$k['bereich'] : 'verschiedenes';
+    $je_bereich[$b]['kanaele']++;
+    $je_bereich[$b]['videos'] += (int)$k['anzahl'];
+}
+$neu_bedingung = $neu_seit !== ''
+    ? 'v.gefunden_am > ?'
+    : 'v.veroeffentlicht_am > (NOW() - INTERVAL 3 DAY)';
+$nb = db()->prepare(
+    'SELECT a.bereich, COUNT(*) AS n' . $von .
+    ' WHERE a.benutzer_id = ? AND ' . $neu_bedingung . ' GROUP BY a.bereich'
+);
+$nb->execute($neu_seit !== '' ? [$uid, $neu_seit] : [$uid]);
+foreach ($nb->fetchAll() as $r) {
+    if (isset($je_bereich[$r['bereich']])) {
+        $je_bereich[$r['bereich']]['neu'] = (int)$r['n'];
+    }
+}
+
+/** Baut eine Adresse der Abo-Seite aus den aktuell sinnvollen Filtern. */
+$adresse = static function (array $mit) use ($suche, $nur_neu): string {
+    $p = array_filter(
+        array_merge(['q' => $suche, 'neu' => $nur_neu ? 1 : ''], $mit),
+        static fn($x) => $x !== '' && $x !== 0 && $x !== null
+    );
+    return '/TRIZ/abos.php' . ($p !== [] ? '?' . http_build_query($p) : '');
+};
+
 // ===========================================================================
 // Ausgabe
 // ===========================================================================
@@ -220,16 +287,54 @@ triz_seitenkopf(t('abos_titel'), t('abos_lead'));
   </div>
   <p class="leise abo-hinweis"><?= e(t('abo_hinweis_aktualisieren')) ?></p>
 
+  <?php
+  /*
+   * Reiter je Bereich. Die Zahl zeigt die neuen Videos, wenn es welche gibt,
+   * sonst die Anzahl insgesamt - so springt ins Auge, wo sich etwas getan
+   * hat. Ein Bereich ohne Kanäle bekommt keinen Reiter.
+   */
+  ?>
+  <nav class="reiter abo-bereiche" aria-label="<?= e(t('abo_bereich')) ?>">
+    <a href="<?= e($adresse([])) ?>" class="<?= $bereich === '' ? 'ist-an' : '' ?>">
+      <?= e(t('abo_alle_bereiche')) ?>
+      <span class="abo-zahl<?= $anzahl_neu > 0 ? ' abo-zahl--neu' : '' ?>"><?= $anzahl_neu > 0 ? '+' . $anzahl_neu : $alle_videos ?></span>
+    </a>
+    <?php foreach ($bereiche as $schluessel => $text):
+      $z = $je_bereich[$schluessel];
+      if ($z['kanaele'] === 0) { continue; }
+    ?>
+      <a href="<?= e($adresse(['bereich' => $schluessel])) ?>"
+         class="<?= $bereich === $schluessel ? 'ist-an' : '' ?>"
+         <?= $bereich === $schluessel ? 'aria-current="page"' : '' ?>>
+        <?= e(t($text)) ?>
+        <span class="abo-zahl<?= $z['neu'] > 0 ? ' abo-zahl--neu' : '' ?>"><?= $z['neu'] > 0 ? '+' . $z['neu'] : $z['videos'] ?></span>
+      </a>
+    <?php endforeach; ?>
+  </nav>
+
   <form class="filter" method="get">
+    <?php if ($bereich !== ''): ?>
+      <input type="hidden" name="bereich" value="<?= e($bereich) ?>">
+    <?php endif; ?>
     <div class="filter__feld">
       <label for="f-kanal"><?= e(t('abo_kanal')) ?></label>
       <select id="f-kanal" name="kanal">
         <option value="0"><?= e(t('abo_alle_kanaele')) ?></option>
-        <?php foreach ($kanaele as $k): ?>
+        <?php
+        // Nach Bereichen gruppiert; ist ein Bereich gewählt, nur dessen Kanäle.
+        $gruppe = null;
+        foreach ($kanaele as $k):
+          if ($bereich !== '' && $k['bereich'] !== $bereich) { continue; }
+          if ($bereich === '' && $k['bereich'] !== $gruppe):
+            if ($gruppe !== null): ?></optgroup><?php endif;
+            $gruppe = (string)$k['bereich']; ?>
+            <optgroup label="<?= e(triz_abo_bereich_name($gruppe)) ?>">
+          <?php endif; ?>
           <option value="<?= (int)$k['id'] ?>" <?= $kanal === (int)$k['id'] ? 'selected' : '' ?>>
             <?= e($k['name'] !== '' ? $k['name'] : $k['kanal_id']) ?> (<?= (int)$k['anzahl'] ?>)
           </option>
-        <?php endforeach; ?>
+        <?php endforeach;
+        if ($gruppe !== null): ?></optgroup><?php endif; ?>
       </select>
     </div>
 
@@ -249,7 +354,7 @@ triz_seitenkopf(t('abos_titel'), t('abos_lead'));
   <p class="leise" style="margin-bottom:14px"><?= e(t('video_extern')) ?></p>
 
   <?php if ($videos === []): ?>
-    <p class="karte leise"><?= e($gesamt === 0 && $suche === '' && !$nur_neu && $kanal === 0 ? t('noch_leer') : t('keine_treffer')) ?></p>
+    <p class="karte leise"><?= e($gesamt === 0 && $suche === '' && !$nur_neu && $kanal === 0 && $bereich === '' ? t('noch_leer') : t('keine_treffer')) ?></p>
   <?php else: ?>
     <ul class="videos">
       <?php foreach ($videos as $v):
@@ -280,6 +385,7 @@ triz_seitenkopf(t('abos_titel'), t('abos_lead'));
 
     <?php
     $parameter = array_filter([
+        'bereich' => $bereich,
         'kanal' => $kanal > 0 ? $kanal : '',
         'q'     => $suche,
         'neu'   => $nur_neu ? 1 : '',
@@ -303,6 +409,14 @@ triz_seitenkopf(t('abos_titel'), t('abos_lead'));
     <label for="abo-kanal"><?= e(t('abo_hinzufuegen')) ?></label>
     <input type="text" id="abo-kanal" name="kanal" required maxlength="300"
            placeholder="<?= e(t('abo_eingabe')) ?>">
+    <label for="abo-bereich-neu"><?= e(t('abo_bereich')) ?></label>
+    <select id="abo-bereich-neu" name="bereich">
+      <?php foreach ($bereiche as $schluessel => $text): ?>
+        <option value="<?= e($schluessel) ?>" <?= ($bereich !== '' ? $bereich : 'verschiedenes') === $schluessel ? 'selected' : '' ?>>
+          <?= e(t($text)) ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
     <button type="submit" class="knopf"><?= e(t('abo_hinzufuegen_knopf')) ?></button>
   </form>
 
@@ -312,21 +426,55 @@ triz_seitenkopf(t('abos_titel'), t('abos_lead'));
         <thead>
           <tr>
             <th><?= e(t('abo_kanal')) ?></th>
+            <th><?= e(t('abo_bereich')) ?></th>
             <th><?= e(t('abo_videos')) ?></th>
             <th><?= e(t('abo_letztes_video')) ?></th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($kanaele as $k): ?>
+          <?php
+          $gruppe = null;
+          foreach ($kanaele as $k):
+            // Zwischenzeile je Bereich - die Tabelle ist nach Bereich sortiert.
+            if ($k['bereich'] !== $gruppe):
+              $gruppe = (string)$k['bereich']; ?>
+              <tr class="abo-gruppe">
+                <th colspan="5" scope="rowgroup">
+                  <?= e(triz_abo_bereich_name($gruppe)) ?>
+                  <span class="leise">· <?= (int)($je_bereich[$gruppe]['kanaele'] ?? 0) ?></span>
+                </th>
+              </tr>
+            <?php endif; ?>
             <tr>
               <td>
-                <a href="?kanal=<?= (int)$k['id'] ?>"><?= e($k['name'] !== '' ? $k['name'] : $k['kanal_id']) ?></a>
+                <a href="<?= e($adresse(['kanal' => (int)$k['id'], 'bereich' => (string)$k['bereich']])) ?>"><?= e($k['name'] !== '' ? $k['name'] : $k['kanal_id']) ?></a>
                 <?php if ($k['letzter_fehler'] !== ''): ?>
                   <br><span class="leise abo-fehler" title="<?= e($k['letzter_fehler']) ?>">
                     <?= e(t('abo_fehler_letzter')) ?>: <?= e(triz_kuerzen((string)$k['letzter_fehler'], 60)) ?>
                   </span>
                 <?php endif; ?>
+              </td>
+              <td>
+                <?php
+                /*
+                 * Auswahl mit sofortigem Absenden. Ohne JavaScript bleibt der
+                 * Knopf daneben sichtbar (noscript) - die Umstellung
+                 * funktioniert also auch dann.
+                 */
+                ?>
+                <form method="post" class="abo-bereich-form">
+                  <?= csrf_feld() ?>
+                  <input type="hidden" name="aktion" value="bereich">
+                  <input type="hidden" name="abo" value="<?= (int)$k['id'] ?>">
+                  <label class="nur-vorlesen" for="bereich-<?= (int)$k['id'] ?>"><?= e(t('abo_bereich')) ?></label>
+                  <select id="bereich-<?= (int)$k['id'] ?>" name="bereich" onchange="this.form.submit()">
+                    <?php foreach ($bereiche as $schluessel => $text): ?>
+                      <option value="<?= e($schluessel) ?>" <?= $k['bereich'] === $schluessel ? 'selected' : '' ?>><?= e(t($text)) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <noscript><button type="submit" class="knopf knopf--klein">OK</button></noscript>
+                </form>
               </td>
               <td><?= (int)$k['anzahl'] ?></td>
               <td class="leise"><?= e($k['letztes'] !== null ? triz_datum($k['letztes']) : '—') ?></td>
