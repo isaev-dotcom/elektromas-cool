@@ -19,6 +19,10 @@ desktop.ini
 # Datenbank-Zugangsdaten - niemals ins Repository
 privat/config.php
 
+# Zwischengespeichertes Microsoft-Token für den Mailversand
+privat/graph_token.json
+privat/graph_token.json.*
+
 # Laufzeitdaten
 privat/sessions/*
 !privat/sessions/.gitkeep

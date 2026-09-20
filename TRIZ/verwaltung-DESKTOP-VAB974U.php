@@ -31,6 +31,7 @@ if (!isset($bereiche[$bereich])) {
 $fehler = '';
 $ok     = '';
 $einmal_link = '';
+$versand_fehler = false;
 
 // ===========================================================================
 // Aktionen
@@ -92,15 +93,17 @@ if (ist_post()) {
             $link = $CONFIG['basis_url'] . '/TRIZ/einladung.php?token=' . urlencode($klartext);
             triz_protokoll('einladung_erstellt', $email, $benutzer_id, 'durch ' . $ich['email']);
 
+            // Den Link immer einmalig zeigen, auch nach erfolgreichem Versand:
+            // Eine angenommene Mail kann im Spamordner landen. In der
+            // Datenbank steht nur sein Hash, später ist er nicht mehr abrufbar.
+            $einmal_link = $link;
             if (triz_mail_einladung($email, $name, $link, $stunden)) {
-                $ok = 'Einladung verschickt an ' . $email . '.';
+                $ok = 'Einladung verschickt an ' . $email . '. Kommt sie nicht an, '
+                    . 'geben Sie den folgenden Link persönlich weiter:';
             } else {
-                // Der Zugang existiert, nur die Mail ging nicht raus. Den Link
-                // hier einmalig zeigen - in der Datenbank steht nur sein Hash,
-                // er lässt sich später nicht wiederherstellen.
                 $ok = 'Zugang angelegt, aber der Mailversand schlug fehl. '
                     . 'Geben Sie den folgenden Link persönlich weiter:';
-                $einmal_link = $link;
+                $versand_fehler = true;
             }
             break;
         }
@@ -135,11 +138,13 @@ if (ist_post()) {
             $link = $CONFIG['basis_url'] . '/TRIZ/einladung.php?token=' . urlencode($klartext);
             triz_protokoll('einladung_erneuert', (string)$b['email'], $id, 'durch ' . $ich['email']);
 
+            $einmal_link = $link;
             if (triz_mail_einladung((string)$b['email'], (string)$b['name'], $link, $stunden)) {
-                $ok = 'Neue Einladung verschickt an ' . $b['email'] . '.';
+                $ok = 'Neue Einladung verschickt an ' . $b['email'] . '. Kommt sie nicht an, '
+                    . 'geben Sie den folgenden Link persönlich weiter:';
             } else {
                 $ok = 'Neue Einladung erstellt, Mailversand fehlgeschlagen:';
-                $einmal_link = $link;
+                $versand_fehler = true;
             }
             break;
         }
@@ -384,7 +389,7 @@ if (ist_post()) {
 triz_kopf(t('verw_titel'), 'verwaltung');
 triz_seitenkopf(t('verw_titel'));
 triz_meldung($fehler, 'fehler');
-triz_meldung($ok, $einmal_link !== '' ? 'hinweis' : 'ok');
+triz_meldung($ok, $versand_fehler ? 'hinweis' : 'ok');
 
 if ($einmal_link !== '') {
     echo '<p class="einmal-link"><code>' . e($einmal_link) . '</code></p>';

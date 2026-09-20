@@ -33,6 +33,19 @@ return [
         'absender_name'    => 'elektromas Schulungen',
         // Hierhin gehen Benachrichtigungen über neue Konten und Anmeldungen.
         'admin_adresse'    => 'isaev@elektromas.de',
+
+        // Versand über Microsoft 365 statt über den Mailserver des Webhosters.
+        // Nötig, weil elektromas-alarm.de und immo-stand.de auf dem Webserver
+        // noch als lokale Maildomains gelten: Mails dorthin verlassen den
+        // Server nie. Siehe MAILVERSAND.md für die Einrichtung.
+        //
+        // Solange 'postfach' leer ist, wird wie bisher lokal verschickt.
+        'graph' => [
+            'mandant_id'    => '',  // Verzeichnis-ID (Mandant) aus Entra
+            'client_id'     => '',  // Anwendungs-ID (Client)
+            'client_secret' => '',  // Geheimer Clientschlüssel (Wert, nicht ID)
+            'postfach'      => '',  // Absenderpostfach, z. B. schulungen@elektromas.de
+        ],
     ],
 
     // --- Sicherheit --------------------------------------------------------

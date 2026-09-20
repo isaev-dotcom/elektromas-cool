@@ -138,6 +138,9 @@ AUSSCHLUSS=(
   ".gitignore"
   "deploy.sh"
   "README.md"
+  # Einrichtungsanleitung für den Mailversand - beschreibt Serverpfade und die
+  # Microsoft-Einrichtung und gehört daher nicht ins Web.
+  "MAILVERSAND.md"
   "Thumbs.db"
   "desktop.ini"
   ".DS_Store"
