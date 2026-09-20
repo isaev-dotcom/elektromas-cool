@@ -20,6 +20,11 @@ DirectoryIndex index.php index.html
   # Adresse als elektromas.cool/triz - der Verzeichnisname ist aber groß.
   RewriteCond %{REQUEST_URI} !^/TRIZ(/|$)
   RewriteRule ^triz/?$ /TRIZ/ [NC,R=301,L]
+
+  # Gefährdungsbeurteilungen liegen unter /bg/. "gbu" ist die im Betrieb
+  # gebräuchliche Abkürzung und soll ebenfalls dorthin führen.
+  RewriteCond %{REQUEST_URI} !^/bg(/|$)
+  RewriteRule ^(gbu|gefaehrdungsbeurteilung(en)?)/?$ /bg/ [NC,R=301,L]
 </IfModule>
 
 # Konfigurations- und Passwortdateien nie ausliefern

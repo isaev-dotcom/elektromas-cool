@@ -21,12 +21,15 @@ Projekte/             Projekt-Dashboard: Soll/Ist je Projekt, Wochenmeldung,
                       KWP-Import – siehe Projekte/ANLEITUNG.md
 TRIZ/                 Business TRIZ Portal: Wissensdatenbank, Nachrichten,
                       Videothek, KI-Assistent – siehe TRIZ/ANLEITUNG.md
+bg/                   Gefährdungsbeurteilungen für Baustellen, eigener
+                      Zugang – siehe bg/ANLEITUNG.md
 
 privat/               NICHT im Web-Verzeichnis, eine Ebene darüber
   config.php            Zugangsdaten (nicht im Repository)
   schema.sql            Datenbankstruktur Benutzerverwaltung
   schema_projekte.sql   Datenbankstruktur Projekt-Dashboard
   schema_triz.sql       Datenbankstruktur TRIZ-Portal
+  schema_bg.sql         Datenbankstruktur Gefährdungsbeurteilungen
   projekte_start.sql    Startdaten für das Dashboard aus KWP (optional)
   triz_start.sql        Kategorien, Quellen und Wissensbibliothek des Portals
   aufraeumen.php        täglicher Cronjob, löscht alte Daten

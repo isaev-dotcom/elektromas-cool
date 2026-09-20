@@ -154,6 +154,7 @@ AUSSCHLUSS=(
   "Schulungen/ANLEITUNG.md"
   "Projekte/ANLEITUNG.md"
   "TRIZ/ANLEITUNG.md"
+  "bg/ANLEITUNG.md"
   # Projekt-Dashboard vorerst zurückgehalten. Die Tabellen in der Datenbank
   # bleiben bestehen; zum Freischalten diese beiden Zeilen entfernen und in
   # privat/lib/view.php sowie Schulungen/index.php den Menüpunkt wieder
