@@ -34,3 +34,6 @@ privat/triz_inhalte/*
 !privat/triz_inhalte/thumbs/
 privat/triz_inhalte/thumbs/*
 !privat/triz_inhalte/thumbs/.gitkeep
+
+# OneDrive-Konfliktkopien ("Datei-DESKTOP-XXXX.php")
+*-DESKTOP-*
